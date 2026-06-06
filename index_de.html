@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Benjamin Kirchler — Forscher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Palette */
+      --paper:  #F8F7F4;
+      --ink:    #1A1917;
+      --mid:    #6B6963;
+      --faint:  #A8A49F;
+      --rule:   #E0DED9;
+      --subtle: #EFEDE8;
+      --accent: #1040A0;
+      --gold:   #C4882A;
+      --dark:   #131211;
+
+      /* Layout */
+      --col: clamp(1.5rem, 8vw, 8rem);
+
+      /* Spacing scale (8px base) */
+      --s1: 0.5rem;
+      --s2: 1rem;
+      --s3: 1.5rem;
+      --s4: 2rem;
+      --s5: 3rem;
+      --s6: 4rem;
+      --s7: 6rem;
+      --s8: 8rem;
+
+      --trans: 0.22s ease;
+
+      /* Modular scale — Major Third (×1.25), base 1rem */
+      --t-2: 0.64rem;
+      --t-1: 0.8rem;
+      --t0:  1rem;
+      --t1:  1.25rem;
+      --t2:  1.563rem;
+      --t3:  1.953rem;
+      --t4:  2.441rem;
+      --t5:  3.052rem;
+      --t6:  3.815rem;
+      --t8:  5.96rem;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--col); height: 52px;
+      background: rgba(248,247,244,0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+    nav::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+    }
+    .nav-logo {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t0); font-weight: 600;
+      letter-spacing: 0.01em; color: var(--ink);
+    }
+    .nav-links { display: flex; gap: var(--s4); list-style: none; }
+    .nav-links a {
+      font-size: var(--t-1); font-weight: 500;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--mid); transition: color var(--trans);
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── LANGUAGE SWITCH ── */
+    .lang-switch {
+      display: flex; align-items: center; gap: 0.3rem;
+      margin-left: var(--s3); padding-left: var(--s3);
+      border-left: 1px solid var(--rule);
+    }
+    .lang-switch a {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--mid); transition: color var(--trans);
+      padding: 0.15rem 0.25rem;
+    }
+    .lang-switch a:hover { color: var(--accent); }
+    .lang-switch a.active { color: var(--ink); }
+    .lang-switch span { font-size: var(--t-2); color: var(--faint); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100svh;
+      display: flex; flex-direction: column;
+      padding-top: 52px;
+    }
+    .hero-body {
+      flex: 1;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: var(--s8) var(--col) var(--s7);
+      max-width: calc(var(--col) + 860px);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-kicker {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: var(--s4);
+      opacity: 0; animation: fadeUp 0.6s 0.05s ease forwards;
+    }
+    .hero-headline {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(var(--t6), 7vw, var(--t8));
+      font-weight: 600; line-height: 1.06;
+      letter-spacing: -0.025em; color: var(--ink);
+      opacity: 0; animation: fadeUp 0.7s 0.12s ease forwards;
+    }
+    .hero-headline em {
+      font-style: italic; font-weight: 400;
+      color: var(--accent);
+    }
+    .hero-deck {
+      margin-top: var(--s4);
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(var(--t0), 1.3vw, var(--t1));
+      font-weight: 400; line-height: 1.85;
+      color: var(--mid); max-width: 520px;
+      opacity: 0; animation: fadeUp 0.7s 0.22s ease forwards;
+    }
+    .hero-meta {
+      margin-top: var(--s3);
+      font-size: var(--t-1); color: var(--mid);
+      line-height: 1.75;
+      opacity: 0; animation: fadeUp 0.7s 0.3s ease forwards;
+    }
+    .hero-meta strong { color: var(--ink); font-weight: 600; }
+    .hero-cta-row {
+      margin-top: var(--s4);
+      opacity: 0; animation: fadeUp 0.7s 0.38s ease forwards;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: var(--t-1); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.1rem;
+      transition: color var(--trans), gap var(--trans);
+    }
+    .hero-cta:hover { color: var(--accent); gap: 0.8rem; }
+
+    /* ── SECTIONS ── */
+    section { padding: var(--s8) var(--col); }
+    section.alt { background: var(--subtle); }
+
+    .section-eyebrow {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--mid); margin-bottom: var(--s1);
+    }
+    .section-heading {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(var(--t4), 3.5vw, var(--t5));
+      font-weight: 700; line-height: 1.06;
+      letter-spacing: -0.02em; color: var(--ink);
+    }
+    .section-heading em { font-style: italic; font-weight: 400; }
+    .section-header { margin-bottom: var(--s6); }
+
+    /* ── ABOUT ── */
+    .about-header { margin-bottom: var(--s5); }
+    .about-header .section-heading { margin-top: var(--s1); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 38% 1fr;
+      gap: 6vw; align-items: start;
+    }
+    .about-photo {
+      width: 100%; aspect-ratio: 3/4;
+      background: var(--rule);
+      overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 0.7rem; color: var(--faint);
+      text-align: center;
+    }
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; }
+    .about-body { padding-top: 0; }
+    .about-body p {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t0); line-height: 1.88;
+      color: var(--mid); margin-bottom: var(--s3);
+    }
+    .about-body p strong { color: var(--ink); font-weight: 600; }
+    .about-stats {
+      display: flex; margin-top: var(--s5);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .stat {
+      display: flex; flex-direction: column;
+      padding: var(--s3) 0; flex: 1;
+    }
+    .stat + .stat {
+      padding-left: var(--s4); margin-left: var(--s4);
+      border-left: 1px solid var(--rule);
+    }
+    .stat-num {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--t4); font-weight: 600;
+      line-height: 1; color: var(--accent);
+      letter-spacing: -0.03em;
+    }
+    .stat-label {
+      font-size: var(--t-2); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--mid); margin-top: var(--s1);
+    }
+
+    /* ── PUBLICATIONS ── */
+    .pub-featured {
+      padding: var(--s3) 0 var(--s4) var(--s3);
+      border-left: 3px solid var(--accent);
+      margin-bottom: var(--s5);
+    }
+    .pub-featured-label {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: var(--s2);
+    }
+    .pub-featured-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(var(--t1), 2vw, var(--t2));
+      font-weight: 600; line-height: 1.4;
+      color: var(--ink); margin-bottom: var(--s1);
+    }
+    .pub-featured-journal {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t-1); font-style: italic;
+      color: var(--mid); line-height: 1.6; margin-bottom: var(--s2);
+    }
+    .pub-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .tag {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.09em; text-transform: uppercase;
+      padding: 0.18rem 0.5rem;
+      border: 1px solid var(--rule);
+      color: var(--mid); white-space: nowrap;
+    }
+    .tag.lead { border-color: var(--accent); color: var(--accent); }
+    .tag.featured { border-color: var(--gold); color: var(--gold); }
+    .pub-list { display: flex; flex-direction: column; }
+    .pub-item {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: var(--s3); align-items: baseline;
+      padding: var(--s3) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .pub-item:first-child { border-top: 1px solid var(--rule); }
+    .pub-item:hover .pub-title { color: var(--accent); }
+    .pub-year {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t-1); font-style: italic; color: var(--faint);
+    }
+    .pub-title {
+      font-size: var(--t0); font-weight: 500;
+      color: var(--ink); line-height: 1.62;
+      transition: color var(--trans);
+    }
+    .pub-journal {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t-1); font-style: italic;
+      color: var(--mid); margin-top: 0.25rem;
+    }
+    .pub-item .pub-tags { display: none; }
+
+    /* ── PROJECTS ── */
+    .projects-list {
+      display: flex; flex-direction: column;
+      border-top: 1px solid var(--rule);
+    }
+    .project-item {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: var(--s5); padding: var(--s4) 0;
+      border-bottom: 1px solid var(--rule);
+    }
+    .project-item:hover .project-name { color: var(--accent); }
+    .project-num {
+      font-size: var(--t-2); font-weight: 500;
+      letter-spacing: 0.06em; color: var(--rule);
+      padding-top: 0.3rem;
+    }
+    .project-body { display: flex; flex-direction: column; gap: 0.5rem; }
+    .project-header {
+      display: flex; align-items: baseline;
+      justify-content: space-between; gap: var(--s2);
+    }
+    .project-name {
+      font-family: 'Inter', sans-serif;
+      font-size: var(--t0); font-weight: 600;
+      color: var(--ink); letter-spacing: -0.01em;
+      transition: color var(--trans);
+    }
+    .project-period {
+      font-size: var(--t-2); font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--faint); white-space: nowrap;
+    }
+    .project-full-name {
+      font-size: var(--t-1); color: var(--mid); line-height: 1.4;
+    }
+    .project-desc {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t0); line-height: 1.78;
+      color: var(--mid); max-width: 600px;
+    }
+    .project-link {
+      margin-top: var(--s1);
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent);
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      transition: gap var(--trans);
+    }
+    .project-link:hover { gap: 0.6rem; }
+
+    /* ── DATA & TOOLS ── */
+    .profiles-list { border-top: 1px solid var(--rule); }
+    .profile-row {
+      display: grid;
+      grid-template-columns: 140px 1fr auto;
+      align-items: center;
+      padding: var(--s3) 0;
+      border-bottom: 1px solid var(--rule);
+      gap: var(--s4);
+      transition: color var(--trans);
+    }
+    .profile-row:hover { color: var(--accent); }
+    .profile-type {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid); transition: color var(--trans);
+    }
+    .profile-row:hover .profile-type { color: var(--accent); }
+    .profile-name-text {
+      font-size: var(--t0); font-weight: 500; color: var(--ink);
+      transition: color var(--trans);
+    }
+    .profile-meta {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t-1); font-style: italic;
+      color: var(--mid); margin-top: 0.15rem;
+    }
+    .profile-row:hover .profile-name-text { color: var(--accent); }
+    .profile-arrow {
+      font-size: var(--t-1); color: var(--faint);
+      transition: color var(--trans);
+    }
+    .profile-row:hover .profile-arrow { color: var(--accent); }
+
+    /* ── CV ── */
+    #cv { background: var(--dark) !important; }
+    #cv .section-eyebrow { color: var(--faint); }
+    #cv .section-heading { color: #fff; }
+    .cv-inner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center; gap: var(--s6);
+    }
+    .cv-text .section-heading { margin-bottom: var(--s3); }
+    .cv-text p {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t0); line-height: 1.82;
+      color: rgba(255,255,255,0.38); max-width: 440px;
+    }
+    .btn-cv {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 1.8rem;
+      background: transparent; color: rgba(255,255,255,0.65);
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.18);
+      transition: border-color var(--trans), background var(--trans), color var(--trans);
+      white-space: nowrap;
+    }
+    .btn-cv:hover { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--subtle); }
+    .contact-inner { max-width: 560px; }
+    .contact-inner .section-header { margin-bottom: var(--s5); }
+    .contact-details {
+      display: flex; flex-direction: column; gap: var(--s3);
+      margin-bottom: var(--s5);
+    }
+    .contact-row {
+      display: flex; align-items: center; gap: var(--s3);
+      font-size: var(--t0); color: var(--mid);
+    }
+    .contact-label {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--faint); min-width: 56px;
+    }
+    .contact-value { color: var(--ink); font-weight: 500; }
+    .btn-email {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: var(--accent); color: #fff;
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background var(--trans), gap var(--trans);
+      text-decoration: none;
+    }
+    .btn-email:hover { background: #0c2e7a; gap: 0.75rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: var(--s4) var(--col);
+      border-top: 1px solid var(--rule);
+      display: flex; align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; gap: var(--s3);
+    }
+    .footer-name {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t0); font-weight: 600;
+      letter-spacing: 0.01em; color: var(--ink);
+    }
+    .footer-links {
+      display: flex; gap: var(--s3); list-style: none; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-size: var(--t-1); font-weight: 500;
+      color: var(--mid); transition: color var(--trans);
+    }
+    .footer-links a:hover { color: var(--ink); }
+    .footer-copy { font-size: var(--t-2); color: var(--faint); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .about-grid { grid-template-columns: 1fr; gap: var(--s5); }
+      .about-photo { max-width: 240px; aspect-ratio: 3/4; }
+      .cv-inner { grid-template-columns: 1fr; gap: var(--s4); }
+      .profile-row { grid-template-columns: 120px 1fr auto; gap: var(--s3); }
+    }
+    @media (max-width: 640px) {
+      :root { --col: 5vw; }
+      nav { padding: 0 5vw; }
+      .nav-links { display: none; }
+      section { padding: var(--s7) var(--col); }
+      .project-item { grid-template-columns: 1fr; gap: var(--s1); }
+      .project-num { display: none; }
+      .pub-item { grid-template-columns: 44px 1fr; }
+      .pub-item .pub-tags { display: none; }
+      .profile-row { grid-template-columns: 1fr auto; }
+      .profile-type { display: none; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">Benjamin Kirchler</span>
+    <ul class="nav-links">
+      <li><a href="#about">Über mich</a></li>
+      <li><a href="#publications">Publikationen</a></li>
+      <li><a href="#projects">Projekte</a></li>
+      <li><a href="#data">Forschungsprofile</a></li>
+      <li><a href="#cv">Lebenslauf</a></li>
+      <li><a href="#contact">Kontakt</a></li>
+    </ul>
+    <div class="lang-switch">
+      <a href="index.html">EN</a>
+      <span>·</span>
+      <a href="index_de.html" class="active">DE</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-body">
+      <p class="hero-kicker">Energieökonomie · Verhaltensforschung · Angewandte Ökonomie</p>
+      <h1 class="hero-headline">
+        Die menschliche Seite<br>der <em>Energiewende</em> verstehen.
+      </h1>
+      <p class="hero-deck">
+        Ich untersuche, warum Menschen die Energiewende unterstützen, ablehnen oder mitgestalten –
+        und verbinde Feldexperimente, Verhaltensökonomie und Energieökonomie,
+        um relevante Evidenz für die Praxis zu erzeugen.
+      </p>
+    </div>
+  </section>
+
+  <!-- ÜBER MICH -->
+  <section id="about" class="alt">
+    <div class="about-header reveal">
+      <p class="section-eyebrow">Über mich</p>
+      <h2 class="section-heading">Rigorose Evidenz<br>für die <em>Energiewende.</em></h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-photo reveal">
+        <img src="benjamin-kirchler.jpg" alt="Benjamin Kirchler">
+      </div>
+      <div class="about-body reveal">
+        <p>
+          Ich bin <strong>Doktorand an der WU Wien</strong> (Wirtschaftsuniversität Wien)
+          und <strong>Research Associate für Energiewirtschaft</strong> am
+          Energieinstitut an der JKU Linz, wo ich seit November 2021 tätig bin.
+        </p>
+        <p>
+          Meine Forschung konzentriert sich auf das <strong>Energieverhalten von Haushalten</strong>,
+          Verhaltensinterventionen, Energiebürgerschaft und die sozioökonomischen Dimensionen
+          der Energiewende. Ich verbinde Feldexperimente, randomisierte kontrollierte Studien
+          und empirische Methoden, um politisch relevante Evidenz für eine nachhaltige
+          Energiezukunft zu erzeugen.
+        </p>
+        <p>
+          Vor meiner Tätigkeit am Energieinstitut war ich Tutor am Institut für
+          Finanzwissenschaft und öffentliche Wirtschaft sowie Forschungsassistent
+          am Institut für Marketing und Konsumforschung der WU Wien.
+        </p>
+        <div class="about-stats">
+          <div class="stat">
+            <span class="stat-num">11</span>
+            <span class="stat-label">Publikationen</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">76+</span>
+            <span class="stat-label">Zitierungen</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">9</span>
+            <span class="stat-label">Aktive Projekte</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUBLIKATIONEN -->
+  <section id="publications">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Publikationen</p>
+      <h2 class="section-heading">Begutachtete Artikel<br>& <em>Working Papers.</em></h2>
+    </div>
+
+    <div class="pub-featured reveal">
+      <p class="pub-featured-label">Aktuellste Publikation · 2026</p>
+      <p class="pub-featured-title">Belonging drives investment intentions: Emotional attachment in sustainable crowdfunding for community energy projects</p>
+      <p class="pub-featured-journal">Energy Research & Social Science, 132, 104532 · mit A. Kollmann, J. Reichl, J.J. Cohen</p>
+      <div class="pub-tags">
+        <span class="tag lead">Lead</span>
+        <span class="tag featured">Neu</span>
+      </div>
+    </div>
+
+    <div class="pub-list reveal">
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">More Information, Less Power: Field Experimental Evidence on the Effect of Information Provision on Residential Electricity Consumption</p>
+          <p class="pub-journal">Working Paper · mit A. Kollmann, J. Reichl</p>
+        </div>
+        <div class="pub-tags"><span class="tag lead">Lead</span><span class="tag">Feldexperiment</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">Unveiling the power of social norms interventions: Investigating energy savings behavior in an Italian energy cooperative</p>
+          <p class="pub-journal">Energy Research & Social Science, 122, 103989</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Soziale Normen</span><span class="tag">RCT</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">Participation as a pathway to procedural justice: A review of energy initiatives across eight European countries</p>
+          <p class="pub-journal">Energy Research & Social Science, 122, 103982</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Energiebürgerschaft</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">Advancing Realistic Estimations of Behavioural Interventions: A Large-Scale Real-World Experiment on Electricity Consumption Reduction in Europe</p>
+          <p class="pub-journal">SSRN 5146234 · mit C. Klöckner et al.</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Preprint</span><span class="tag">RCT</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">Assessing the impact of structural change in sustainable consumption and lifestyles research</p>
+          <p class="pub-journal">Consumption and Society, 4(1), 122–140</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Konsum</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2025</span>
+        <div>
+          <p class="pub-title">The legal, regulatory and institutional dimensions in the emergence of energy citizenship</p>
+          <p class="pub-journal">mit A. Veseli, A. Kollmann</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Energierecht</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2024</span>
+        <div>
+          <p class="pub-title">Social Reference Points Shape Decisions under Uncertainty</p>
+          <p class="pub-journal">Working Paper · mit E. Kirchler</p>
+        </div>
+        <div class="pub-tags"><span class="tag lead">Lead</span><span class="tag">Verhaltensökonomie</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2024</span>
+        <div>
+          <p class="pub-title">Behavioural insights into energy consumption in times of crisis</p>
+          <p class="pub-journal">Energy Research & Social Science, 117, 103744 · mit A. Kollmann, A. Sinea, C. Volintiru</p>
+        </div>
+        <div class="pub-tags"><span class="tag lead">Lead</span><span class="tag">Feldexperiment</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2024</span>
+        <div>
+          <p class="pub-title">Promoting electricity conservation through behavior change: A study protocol for a web-based multiple-arm parallel randomized controlled trial</p>
+          <p class="pub-journal">PloS ONE, 19(3), e0293683</p>
+        </div>
+        <div class="pub-tags"><span class="tag">RCT</span><span class="tag">Studienprotokoll</span></div>
+      </div>
+
+      <div class="pub-item">
+        <span class="pub-year">2024</span>
+        <div>
+          <p class="pub-title">Empowering energy citizenship: Exploring dimensions and drivers in citizen engagement during the energy transition</p>
+          <p class="pub-journal">Energy Reports, 11, 1894–1909</p>
+        </div>
+        <div class="pub-tags"><span class="tag">Energiebürgerschaft</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROJEKTE -->
+  <section id="projects" class="alt">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Projekte</p>
+      <h2 class="section-heading">Aktive Forschungs-<br>& <em>Förderprojekte.</em></h2>
+    </div>
+    <div class="projects-list reveal">
+
+      <article class="project-item">
+        <span class="project-num">01</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">CURE</span>
+            <span class="project-period">2022–2026</span>
+          </div>
+          <p class="project-full-name">Widerstand gegen Energie- und Klimapolitik verstehen</p>
+          <p class="project-desc">Das Projekt untersucht auf Mikro-, Meso- und Makroebene, welche Akteure, Formen und Themen des Widerstands die Umsetzung von Klimapolitik beeinflussen, und entwickelt Empfehlungen für eine sozial sensiblere Energiewende.</p>
+          <a href="https://energieinstitut-linz.at/en/project/conceptualizing-and-understanding-resistance-against-energy-policy-and-technology/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">02</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">INNOnet</span>
+            <span class="project-period">2023–2026</span>
+          </div>
+          <p class="project-full-name">Interaktive Netzoptimierung und Netztarife</p>
+          <p class="project-desc">Das Projekt testet lastabhängige Netztarife unter realen Betriebsbedingungen, um aktivierbare Flexibilitätspotenziale bei Haushaltskunden zu ermitteln und evidenzbasierte Lösungen für zukunftsfähige Netztarifstrukturen in Österreich zu entwickeln.</p>
+          <a href="https://energieinstitut-linz.at/en/project/interaktive-netzoptimierung-und-netztarife/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">03</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">MultiFutures</span>
+            <span class="project-period">2024–2027</span>
+          </div>
+          <p class="project-full-name">Alternative nachhaltige Zukunftsmodelle</p>
+          <p class="project-desc">MultiFutures erweitert systematisch den Handlungsspielraum für nachhaltige Politik, indem alternative ökonomische Paradigmen zur Entwicklung von Transformationsszenarien analysiert werden, die über BIP-Indikatoren hinausgehen.</p>
+          <a href="https://multifutures.eu/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">04</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">POWERCAST</span>
+            <span class="project-period">2024–2027</span>
+          </div>
+          <p class="project-full-name">Lastvorhersagen mit KI-Prognosemodellen</p>
+          <p class="project-desc">Das Projekt entwickelt KI-basierte Prognosemodelle zur Vorhersage von Stromlasten, um Prognosefehler zu reduzieren, Netzinterventionen zu vermeiden und die Integration erneuerbarer Energien zu verbessern.</p>
+          <a href="https://energieinstitut-linz.at/en/project/prediction-and-optimization-of-power-loads-using-ai-forecasting-models-for-costand-supply-efficient-power-grids/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">05</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">ADJUST</span>
+            <span class="project-period">2025–2028</span>
+          </div>
+          <p class="project-full-name">Für eine gerechte Energiewende</p>
+          <p class="project-desc">Das Ziel besteht darin, die Energiewende und ihre politischen Instrumente (CO₂-Abgabe, Klimabonus) aus einer verteilungspolitischen Perspektive zu bewerten und gerechtere Politikvorschläge zu entwickeln.</p>
+          <a href="https://adjust-project.at/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">06</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">HI2 Valley</span>
+            <span class="project-period">2025–2030</span>
+          </div>
+          <p class="project-full-name">Aufbau einer grünen Wasserstoffwirtschaft in Österreich</p>
+          <p class="project-desc">Das Projekt baut in Österreichs Industriekernregionen eine umfassende Wasserstoffwirtschaft auf und integriert grünen Wasserstoff in die Sektoren Stahl, Chemie, Zement, Energie und Mobilität.</p>
+          <a href="https://www.hi2valley.com/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">07</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">GridCommunity</span>
+            <span class="project-period">2026–2028</span>
+          </div>
+          <p class="project-full-name">Resiliente Netze durch Energiegemeinschaften als systemdienliche Partner</p>
+          <p class="project-desc">Das Projekt entwickelt skalierbare Lösungen – Tarifanpassungen, dynamische Preisgestaltung, gemeinsame Speicherung und digitale Kommunikation in Echtzeit –, um Energiegemeinschaften als systemdienliche Partner in das Stromnetz zu integrieren.</p>
+          <a href="https://energieinstitut-linz.at/project/resiliente-netze-durch-energiegemeinschaften-als-systemdienliche-partner/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">08</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">ACTWELL</span>
+            <span class="project-period">2025–2028</span>
+          </div>
+          <p class="project-full-name">Die Auswirkungen von Klimaanpassungsmaßnahmen auf das Wohlbefinden in Österreich</p>
+          <p class="project-desc">Das Projekt untersucht, wie Klimaanpassungsmaßnahmen in Österreich die Lebensqualität beeinflussen, und entwickelt Handlungsempfehlungen für eine sozial gerechte Klimaanpassungspolitik.</p>
+          <a href="https://www.actwell-project.com/" target="_blank" class="project-link">Zum Projekt ↗</a>
+        </div>
+      </article>
+
+      <article class="project-item">
+        <span class="project-num">09</span>
+        <div class="project-body">
+          <div class="project-header">
+            <span class="project-name">RLD</span>
+            <span class="project-period">2026–2028</span>
+          </div>
+          <p class="project-full-name">Referenzlastdatensatz für Verteilnetzbetreiber</p>
+          <p class="project-desc">Aufbau eines statistisch repräsentativen Referenzlastdatensatzes auf DSO-Ebene als Grundlage für Forecasting und datengetriebene Netzmodelle, in Kooperation mit Energienetze Steiermark und Kärnten Netz.</p>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- FORSCHUNGSPROFILE -->
+  <section id="data">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Forschungsprofile</p>
+      <h2 class="section-heading">Forschungsprofile<br>& <em>Replikationsmaterialien.</em></h2>
+    </div>
+    <div class="profiles-list reveal">
+
+      <a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank" class="profile-row">
+        <span class="profile-type">Profil</span>
+        <div>
+          <p class="profile-name-text">Google Scholar</p>
+          <p class="profile-meta">Vollständige Publikationsliste & Zitiermetriken</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank" class="profile-row">
+        <span class="profile-type">Profil</span>
+        <div>
+          <p class="profile-name-text">ResearchGate</p>
+          <p class="profile-meta">15 Publikationen · 76 Zitierungen</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://orcid.org/0000-0003-2283-6389" target="_blank" class="profile-row">
+        <span class="profile-type">ORCID</span>
+        <div>
+          <p class="profile-name-text">0000-0003-2283-6389</p>
+          <p class="profile-meta">Offener Forscheridentifikator</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5146234" target="_blank" class="profile-row">
+        <span class="profile-type">Preprint</span>
+        <div>
+          <p class="profile-name-text">Advancing Realistic Estimations of Behavioural Interventions</p>
+          <p class="profile-meta">SSRN 5146234 · Großangelegtes RCT in Europa</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4843941" target="_blank" class="profile-row">
+        <span class="profile-type">Preprint</span>
+        <div>
+          <p class="profile-name-text">Social Reference Points Shape Decisions under Uncertainty</p>
+          <p class="profile-meta">SSRN 4843941 · mit E. Kirchler</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- LEBENSLAUF -->
+  <section id="cv">
+    <div class="cv-inner">
+      <div class="cv-text reveal">
+        <p class="section-eyebrow">Lebenslauf</p>
+        <h2 class="section-heading">Akademischer Werdegang &<br><em>Forschungserfahrung.</em></h2>
+        <p>
+          Laden Sie meinen Lebenslauf herunter für einen vollständigen Überblick
+          über Ausbildung, Forschungspositionen, Förderprojekte,
+          Konferenzteilnahmen und Lehrerfahrung.
+        </p>
+      </div>
+      <a href="cv/academic_de.pdf"
+         class="btn-cv reveal" target="_blank">
+        ↓ Lebenslauf herunterladen (PDF)
+      </a>
+    </div>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="contact">
+    <div class="contact-inner reveal">
+      <div class="section-header">
+        <p class="section-eyebrow">Kontakt</p>
+        <h2 class="section-heading">Schreiben Sie <em>mir.</em></h2>
+      </div>
+      <div class="contact-details">
+        <div class="contact-row">
+          <span class="contact-label">E-Mail</span>
+          <span class="contact-value">benjaminkirchler@rocketmail.com</span>
+        </div>
+        <div class="contact-row">
+          <span class="contact-label">Telefon</span>
+          <span class="contact-value">+43 660 827 0761</span>
+        </div>
+      </div>
+      <a href="mailto:benjaminkirchler@rocketmail.com" class="btn-email">
+        E-Mail schreiben ↗
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-name">Benjamin Kirchler</span>
+    <ul class="footer-links">
+      <li><a href="mailto:benjaminkirchler@rocketmail.com">E-Mail</a></li>
+      <li><a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank">Google Scholar</a></li>
+      <li><a href="https://orcid.org/0000-0003-2283-6389" target="_blank">ORCID</a></li>
+      <li><a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank">ResearchGate</a></li>
+      <li><a href="https://www.linkedin.com/in/benjamin-kirchler-036922196/" target="_blank">LinkedIn</a></li>
+      <li><a href="https://energieinstitut-linz.at/en/team/benjamin-kirchler-msc/" target="_blank">Energieinstitut</a></li>
+    </ul>
+    <span class="footer-copy">© 2026 Benjamin Kirchler</span>
+  </footer>
+
+  <script>
+    function animateStat(el) {
+      const raw = el.textContent.trim();
+      const suffix = raw.replace(/[\d.]/g, '');
+      const target = parseFloat(raw.replace(/[^\d.]/g, ''));
+      if (isNaN(target)) return;
+      let start;
+      if      (target <= 20)   start = 0;
+      else if (target <= 100)  start = Math.round(target * 0.30);
+      else if (target <= 1000) start = Math.round(target * 0.75);
+      else                     start = Math.round(target * 0.92);
+      const range = target - start;
+      const duration = Math.min(1200 + range * 2, 1600);
+      const startTime = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * eased);
+        el.textContent = current + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const statObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { animateStat(e.target); statObserver.unobserve(e.target); }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('.stat-num').forEach(el => statObserver.observe(el));
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          e.target.querySelectorAll('.project-item, .profile-row, .pub-item').forEach((child, i) => {
+            child.style.transitionDelay = `${i * 0.05}s`;
+            child.classList.add('reveal', 'visible');
+          });
+        }
+      });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
