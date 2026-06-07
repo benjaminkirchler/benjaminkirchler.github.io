@@ -134,6 +134,41 @@
       line-height: 1.7;
     }
 
+    .instruction-list {
+      display: grid;
+      gap: 1rem;
+      margin: 2rem 0;
+      list-style: none;
+      counter-reset: instructions;
+    }
+
+    .instruction-list li {
+      position: relative;
+      padding: 0 0 1rem 3rem;
+      border-bottom: 1px solid var(--rule);
+      color: var(--mid);
+      line-height: 1.65;
+      counter-increment: instructions;
+    }
+
+    .instruction-list li::before {
+      content: counter(instructions);
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: grid;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 600;
+      place-items: center;
+    }
+
+    .instruction-list strong { color: var(--ink); }
+
     .condition-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -475,9 +510,8 @@
     <p class="subtitle">Interactive demo · Kirchler &amp; Kirchler (2024)</p>
 
     <p class="instructions">
-      Select as many boxes as you want. Each selected safe box earns 10p, but selecting
-      any hidden bomb means losing the entire round. When you are satisfied with your
-      choice, reveal the outcome.
+      Explore how people make decisions when probabilities are known or ambiguous.
+      Choose a condition to begin the three-round interactive demonstration.
     </p>
 
     <section id="setup-screen" class="screen active card">
@@ -502,6 +536,26 @@
       </div>
     </section>
 
+    <section id="instruction-screen" class="screen card">
+      <p class="eyebrow">Instructions</p>
+      <h2>How the task works</h2>
+      <p id="condition-instruction" class="screen-intro"></p>
+
+      <ol class="instruction-list">
+        <li>On the next page, you will see a field containing <strong>100 boxes</strong>.</li>
+        <li>Each box you select earns <strong>1 token</strong>. Each token is worth <strong>€0.10</strong>.</li>
+        <li>If any selected box contains a bomb, you lose <strong>all earnings from that round</strong>.</li>
+        <li>Select carefully: once you select a box, <strong>you cannot unselect it</strong>.</li>
+        <li>When you have selected all the boxes you want, click <strong>Collect money</strong>.</li>
+        <li>You will receive no outcome feedback during play. After all three rounds, the results show how many bombs were hidden and whether you selected one.</li>
+      </ol>
+
+      <div class="actions">
+        <button id="continue-from-instructions" class="primary-button" type="button">Continue</button>
+        <button class="secondary-button back-to-setup" type="button">Back</button>
+      </div>
+    </section>
+
     <section id="belief-screen" class="screen card">
       <p class="eyebrow">Before you play</p>
       <h2>What do you believe?</h2>
@@ -513,21 +567,21 @@
       <div class="belief-grid">
         <div class="belief-field">
           <label for="belief-0">0 bombs</label>
-          <div class="belief-input-wrap"><input id="belief-0" type="number" min="0" max="100" value="33"><span>points</span></div>
+          <div class="belief-input-wrap"><input id="belief-0" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
         </div>
         <div class="belief-field">
           <label for="belief-1">1 bomb</label>
-          <div class="belief-input-wrap"><input id="belief-1" type="number" min="0" max="100" value="34"><span>points</span></div>
+          <div class="belief-input-wrap"><input id="belief-1" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
         </div>
         <div class="belief-field">
           <label for="belief-2">2 bombs</label>
-          <div class="belief-input-wrap"><input id="belief-2" type="number" min="0" max="100" value="33"><span>points</span></div>
+          <div class="belief-input-wrap"><input id="belief-2" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
         </div>
       </div>
 
-      <p id="belief-total" class="belief-total">Total: <strong>100</strong> / 100 points</p>
+      <p id="belief-total" class="belief-total invalid">Total: <strong>0</strong> / 100 points</p>
       <div class="actions">
-        <button id="start-ambiguity" class="primary-button" type="button">Start ambiguity game</button>
+        <button id="start-ambiguity" class="primary-button" type="button" disabled>Continue</button>
         <button class="secondary-button back-to-setup" type="button">Back</button>
       </div>
     </section>
@@ -539,8 +593,8 @@
           <div id="round-number" class="round-number">Round 1 of 3</div>
         </div>
         <div class="round-earnings">
-          <span class="round-label">Potential earnings</span>
-          <strong id="potential-earnings">£0.00</strong>
+          <span class="round-label">Selected value</span>
+          <strong id="potential-earnings">0 tokens · €0.00</strong>
         </div>
       </div>
 
@@ -550,11 +604,10 @@
         <div id="grid" role="grid" aria-label="Bomb risk elicitation grid"></div>
       </div>
 
-      <p id="status" class="status">Select at least one box, then reveal the outcome.</p>
+      <p id="status" class="status">Select at least one box, then collect your money.</p>
 
       <div class="actions">
-        <button id="reveal" class="primary-button" type="button" disabled>Reveal outcome</button>
-        <button id="next-round" class="primary-button" type="button" hidden>Next round</button>
+        <button id="collect" class="primary-button" type="button" disabled>Collect money</button>
       </div>
     </section>
 
@@ -565,7 +618,7 @@
 
       <div class="total-earned">
         <span>Total earned</span>
-        <strong id="total-earned">£0.00</strong>
+        <strong id="total-earned">0 tokens · €0.00</strong>
       </div>
 
       <p id="result-condition" class="result-meta"></p>
@@ -587,7 +640,6 @@
       var selectedIndexes = new Set();
       var bombIndexes = new Set();
       var roundResults = [];
-      var roundRevealed = false;
 
       function secureRandomInt(maxExclusive) {
         if (maxExclusive <= 0) {
@@ -608,7 +660,11 @@
       }
 
       function formatMoney(value) {
-        return "£" + value.toFixed(2);
+        return "€" + value.toFixed(2);
+      }
+
+      function formatTokens(tokens) {
+        return tokens + " token" + (tokens === 1 ? "" : "s") + " · " + formatMoney(tokens * rewardPerBox);
       }
 
       function showScreen(id) {
@@ -618,6 +674,7 @@
       }
 
       function drawBombCount() {
+        // Demo implementation: ambiguity outcomes 0, 1, and 2 are equally likely.
         return condition === "risk" ? 1 : secureRandomInt(3);
       }
 
@@ -642,8 +699,8 @@
 
       function updateRoundDisplay() {
         $("#round-number").text("Round " + round + " of " + roundsPlayed);
-        $("#potential-earnings").text(formatMoney(selectedIndexes.size * rewardPerBox));
-        $("#reveal").prop("disabled", selectedIndexes.size === 0);
+        $("#potential-earnings").text(formatTokens(selectedIndexes.size));
+        $("#collect").prop("disabled", selectedIndexes.size === 0);
       }
 
       function updateConditionNote() {
@@ -665,28 +722,37 @@
       function startRound() {
         round++;
         selectedIndexes = new Set();
-        roundRevealed = false;
         drawBombLocations(drawBombCount());
         createGrid();
         updateRoundDisplay();
         updateConditionNote();
-        $("#status").text("Select at least one box, then reveal the outcome.");
-        $("#reveal").prop("hidden", false);
-        $("#next-round").prop("hidden", true).text(round < roundsPlayed ? "Next round" : "View results");
+        $("#status").text("Select at least one box, then collect your money.");
+        $("#collect").prop("disabled", true).text("Collect money");
       }
 
       $(".condition-button").on("click", function() {
         condition = $(this).attr("data-condition");
         beliefs = null;
-        if (condition === "ambiguity") {
-          showScreen("#belief-screen");
+        if (condition === "risk") {
+          $("#condition-instruction").html(
+            "In the <strong>risk condition</strong>, exactly <strong>1 bomb</strong> is hidden randomly among the 100 boxes. " +
+            "The probability that any individual box contains the bomb is therefore known."
+          );
         } else {
-          startGame();
+          $("#condition-instruction").html(
+            "In the <strong>ambiguity condition</strong>, between <strong>0 and 2 bombs</strong> are hidden randomly among the 100 boxes. " +
+            "You do not know how likely it is that the field contains 0, 1, or 2 bombs."
+          );
         }
+        showScreen(condition === "ambiguity" ? "#belief-screen" : "#instruction-screen");
       });
 
       $(".back-to-setup").on("click", function() {
         showScreen("#setup-screen");
+      });
+
+      $("#continue-from-instructions").on("click", function() {
+        startGame();
       });
 
       $(".belief-field input").on("input", function() {
@@ -717,55 +783,35 @@
           beliefs.two >= 0 && beliefs.two <= 100 &&
           beliefs.zero + beliefs.one + beliefs.two === 100
         ) {
-          startGame();
+          showScreen("#instruction-screen");
         }
       });
 
       $("#grid").on("click", ".box", function() {
-        if (roundRevealed) {
+        if ($(this).prop("disabled")) {
           return;
         }
 
         var index = Number($(this).attr("data-index"));
-        if (selectedIndexes.has(index)) {
-          selectedIndexes.delete(index);
-          $(this).removeClass("selected").attr("aria-label", "Unselected box");
-        } else {
-          selectedIndexes.add(index);
-          $(this).addClass("selected").attr("aria-label", "Selected box");
-        }
+        selectedIndexes.add(index);
+        $(this).prop("disabled", true).addClass("selected").attr("aria-label", "Selected box");
 
         $("#status").text(
-          selectedIndexes.size === 0
-            ? "Select at least one box, then reveal the outcome."
-            : selectedIndexes.size + " box" + (selectedIndexes.size === 1 ? "" : "es") + " selected. You can revise your choice or reveal."
+          selectedIndexes.size + " box" + (selectedIndexes.size === 1 ? "" : "es") +
+          " selected. Continue selecting or collect your money."
         );
         updateRoundDisplay();
       });
 
-      $("#reveal").on("click", function() {
-        if (roundRevealed || selectedIndexes.size === 0) {
+      $("#collect").on("click", function() {
+        if (selectedIndexes.size === 0) {
           return;
         }
 
-        roundRevealed = true;
         var selectedBombs = 0;
-
-        $(".box").each(function() {
-          var index = Number($(this).attr("data-index"));
-          var isBomb = bombIndexes.has(index);
-          var isSelected = selectedIndexes.has(index);
-          $(this).prop("disabled", true).removeClass("selected").addClass("open");
-
-          if (isBomb) {
-            $(this).addClass("bomb").attr("aria-label", isSelected ? "Selected bomb" : "Unselected bomb");
-            if (isSelected) {
-              selectedBombs++;
-            }
-          } else if (isSelected) {
-            $(this).addClass("coin").attr("aria-label", "Selected safe box worth 10 pence");
-          } else {
-            $(this).addClass("unselected-safe").attr("aria-label", "Unselected safe box");
+        selectedIndexes.forEach(function(index) {
+          if (bombIndexes.has(index)) {
+            selectedBombs++;
           }
         });
 
@@ -779,27 +825,19 @@
           earned: earned
         });
 
-        if (selectedBombs > 0) {
-          $("#status").html("<strong>Bomb hit.</strong> You earned £0.00 this round.");
-        } else {
-          $("#status").html("<strong>Safe choice.</strong> You earned " + formatMoney(earned) + " this round.");
-        }
-
-        $("#potential-earnings").text(formatMoney(earned));
-        $("#reveal").prop("hidden", true);
-        $("#next-round").prop("hidden", false);
-      });
-
-      $("#next-round").on("click", function() {
+        $(".box").prop("disabled", true);
+        $("#collect").prop("disabled", true);
         if (round < roundsPlayed) {
-          startRound();
+          $("#status").html("<strong>Choice recorded.</strong> Starting the next round without revealing the outcome...");
+          window.setTimeout(startRound, 800);
         } else {
-          showResults();
+          $("#status").html("<strong>Choice recorded.</strong> Preparing your results...");
+          window.setTimeout(showResults, 800);
         }
       });
 
       function showResults() {
-        $("#total-earned").text(formatMoney(total));
+        $("#total-earned").text(formatTokens(Math.round(total / rewardPerBox)));
         $("#result-condition").html(
           "<strong>Condition:</strong> " +
           (condition === "risk" ? "Risk — exactly one known bomb." : "Ambiguity — 0, 1, or 2 possible bombs.")
@@ -822,7 +860,7 @@
             .append($("<span>").text(result.selected + " selected"))
             .append($("<span>").text(result.bombsPresent + " hidden bomb" + (result.bombsPresent === 1 ? "" : "s")))
             .append($("<span>").text(result.bombsHit + " hit"))
-            .append($("<span>").text(formatMoney(result.earned) + " earned"))
+            .append($("<span>").text(formatTokens(Math.round(result.earned / rewardPerBox)) + " earned"))
             .appendTo("#round-results");
         });
 
@@ -832,6 +870,9 @@
       $("#play-again").on("click", function() {
         condition = null;
         beliefs = null;
+        $(".belief-field input").val("");
+        $("#belief-total").addClass("invalid").html("Total: <strong>0</strong> / 100 points");
+        $("#start-ambiguity").prop("disabled", true);
         showScreen("#setup-screen");
       });
     });
