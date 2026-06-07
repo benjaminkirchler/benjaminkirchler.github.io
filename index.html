@@ -472,6 +472,9 @@
       background: var(--paper);
     }
     .tool-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(16,64,160,0.07); }
+    .tool-card-link { color: inherit; text-decoration: none; cursor: pointer; }
+    .tool-card-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    .tool-card-link:hover .tool-link { gap: 0.65rem; }
     .tool-tag {
       font-size: var(--t-2); font-weight: 600;
       letter-spacing: 0.12em; text-transform: uppercase;
@@ -877,13 +880,13 @@
     </div>
     <div class="tools-grid reveal">
 
-      <div class="tool-card">
+      <a href="tools/bret/" class="tool-card tool-card-link" aria-label="Try the Bomb Risk Elicitation Task">
         <span class="tool-tag">Risk Preferences</span>
         <p class="tool-name">Bomb Risk Elicitation Task</p>
         <p class="tool-desc">A 10×10 grid with hidden bombs. Click boxes to collect money — but stop before hitting a bomb. Measures individual risk tolerance under uncertainty.</p>
         <p class="tool-citation">Crosetto & Filippin (2013), adapted for social reference points by Kirchler & Kirchler (2024)</p>
-        <a href="tools/bret/" class="tool-link">Try the task ↗</a>
-      </div>
+        <span class="tool-link">Try the task ↗</span>
+      </a>
 
       <div class="tool-card">
         <span class="tool-tag">Risk Preferences</span>
