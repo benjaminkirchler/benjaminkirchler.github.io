@@ -1,84 +1,104 @@
 /**
  * Google Apps Script — Data collection endpoint for BART & BRET demos
  * =====================================================================
- * SETUP (takes ~5 minutes):
- *
- *  1. Go to https://script.google.com and click "New project"
- *  2. Paste this entire file into the editor (replace the default code)
- *  3. Save (Ctrl+S) and give the project a name, e.g. "BART BRET Data"
- *  4. Click "Deploy" → "New deployment"
- *     - Type: Web app
- *     - Execute as: Me
- *     - Who has access: Anyone
- *  5. Click "Deploy", accept permissions, and copy the Web App URL
- *  6. In tools/bart/index.html AND tools/bret/index.html, find:
- *       var DATA_ENDPOINT = '';
- *     and replace the empty string with your URL:
- *       var DATA_ENDPOINT = 'https://script.google.com/macros/s/YOUR_ID/exec';
- *  7. Commit and push — data collection is live.
- *
- * The script automatically creates a Google Sheet called
- * "BART & BRET — Research Data" on the first request.
- * Columns: Timestamp | Game | Session | Condition | Rounds | Total Earned | Score | Raw JSON
+ * Creates one tab per game type (BART, BRET, DICTATOR, ...) automatically.
+ * All data lands in one file: "BART & BRET — Research Data" in Google Drive.
  */
 
-// ── Auto-creates a Google Sheet on first run, reuses it afterwards ────────────
-function getOrCreateSheet() {
+// ── Get or create the main spreadsheet ───────────────────────────────────────
+function getSpreadsheet() {
   var props = PropertiesService.getScriptProperties();
   var id    = props.getProperty('SHEET_ID');
 
   if (id) {
     try {
-      return SpreadsheetApp.openById(id).getActiveSheet();
-    } catch (e) {
-      // Sheet was deleted — fall through to create a new one
-    }
+      return SpreadsheetApp.openById(id);
+    } catch (e) {}
   }
 
   var ss = SpreadsheetApp.create('BART & BRET — Research Data');
   props.setProperty('SHEET_ID', ss.getId());
-  return ss.getActiveSheet();
+  return ss;
 }
 
-// ── Main POST handler — called by the games ───────────────────────────────────
+// ── Get or create the tab for this game ──────────────────────────────────────
+function getGameSheet(ss, gameName) {
+  var tab = ss.getSheetByName(gameName);
+
+  if (!tab) {
+    tab = ss.insertSheet(gameName);
+
+    // Write header row for this game
+    var headers = {
+      'BART':     ['Timestamp', 'Session ID', 'Round 1 Pumps', 'Round 1 Burst', 'Round 1 Earned',
+                   'Round 2 Pumps', 'Round 2 Burst', 'Round 2 Earned',
+                   'Round 3 Pumps', 'Round 3 Burst', 'Round 3 Earned',
+                   'Total Earned (£)', 'Adj. BART Score', 'Max Pumps'],
+      'BRET':     ['Timestamp', 'Session ID', 'Condition',
+                   'Round 1 Boxes', 'Round 1 Bomb Hit', 'Round 1 Earned',
+                   'Round 2 Boxes', 'Round 2 Bomb Hit', 'Round 2 Earned',
+                   'Round 3 Boxes', 'Round 3 Bomb Hit', 'Round 3 Earned',
+                   'Total Earned (£)', 'Payoff Round'],
+      'DICTATOR': ['Timestamp', 'Session ID', 'Tokens Given', 'Tokens Kept', 'Share Given (%)']
+    };
+
+    var h = headers[gameName] || ['Timestamp', 'Session ID', 'Raw JSON'];
+    tab.appendRow(h);
+    tab.getRange(1, 1, 1, h.length).setFontWeight('bold');
+  }
+
+  return tab;
+}
+
+// ── Main POST handler ─────────────────────────────────────────────────────────
 function doPost(e) {
   try {
-    var sheet = getOrCreateSheet();
-    var data  = JSON.parse(e.postData.contents);
+    var data = JSON.parse(e.postData.contents);
+    var game = (data.game || 'UNKNOWN').toUpperCase();
+    var ss   = getSpreadsheet();
+    var tab  = getGameSheet(ss, game);
+    var ts   = data.timestamp || new Date().toISOString();
+    var sid  = data.session_id || '?';
+    var row  = [];
 
-    // Ensure header row exists
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'Timestamp', 'Game', 'Session ID', 'Condition',
-        'Rounds (summary)', 'Total Earned (£)', 'Adj. Score', 'Raw JSON'
-      ]);
-      sheet.getRange(1, 1, 1, 8).setFontWeight('bold');
+    if (game === 'BART') {
+      var rounds = data.rounds || [];
+      row = [ts, sid];
+      for (var i = 0; i < 3; i++) {
+        var r = rounds[i];
+        row.push(r ? r.pumps   : '');
+        row.push(r ? (r.burst ? 'yes' : 'no') : '');
+        row.push(r ? r.earned  : '');
+      }
+      row.push(data.total_earned != null ? Number(data.total_earned).toFixed(2) : '');
+      row.push(data.adj_bart_score || '');
+      row.push(data.max_pumps || 32);
+
+    } else if (game === 'BRET') {
+      var rounds = data.rounds || [];
+      row = [ts, sid, data.condition || 'risk'];
+      for (var i = 0; i < 3; i++) {
+        var r = rounds[i];
+        row.push(r ? r.boxes     : '');
+        row.push(r ? (r.bombs_hit > 0 ? 'yes' : 'no') : '');
+        row.push(r ? r.earned    : '');
+      }
+      row.push(data.total_earned != null ? Number(data.total_earned).toFixed(2) : '');
+      row.push(data.payoff_round || '');
+
+    } else if (game === 'DICTATOR') {
+      row = [
+        ts, sid,
+        data.tokens_given != null ? data.tokens_given : '',
+        data.tokens_kept  != null ? data.tokens_kept  : '',
+        data.share_given  != null ? (data.share_given * 100).toFixed(1) + '%' : ''
+      ];
+
+    } else {
+      row = [ts, sid, JSON.stringify(data)];
     }
 
-    // Build a human-readable rounds summary
-    var roundsSummary = '';
-    if (data.rounds && Array.isArray(data.rounds)) {
-      roundsSummary = data.rounds.map(function(r) {
-        if (data.game === 'BART') {
-          return 'R' + r.round + ': ' + r.pumps + ' pumps, ' + (r.burst ? 'burst' : '£' + r.earned.toFixed(2));
-        } else if (data.game === 'BRET') {
-          return 'R' + r.round + ': ' + r.boxes + ' boxes, ' + (r.bombs_hit > 0 ? 'bomb' : '£' + r.earned.toFixed(2));
-        } else {
-          return JSON.stringify(r);
-        }
-      }).join(' | ');
-    }
-
-    sheet.appendRow([
-      data.timestamp      || new Date().toISOString(),
-      data.game           || '?',
-      data.session_id     || '?',
-      data.condition      || 'risk',
-      roundsSummary,
-      data.total_earned   != null ? Number(data.total_earned).toFixed(2) : '',
-      data.adj_bart_score || '',
-      JSON.stringify(data)
-    ]);
+    tab.appendRow(row);
 
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'ok' }))
@@ -91,9 +111,9 @@ function doPost(e) {
   }
 }
 
-// ── Health check — open the URL in a browser to confirm it's live ─────────────
+// ── Health check ──────────────────────────────────────────────────────────────
 function doGet(e) {
   return ContentService
-    .createTextOutput(JSON.stringify({ status: 'alive', message: 'BART/BRET data endpoint is running' }))
+    .createTextOutput(JSON.stringify({ status: 'alive', message: 'Data endpoint running — separate tabs per game' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
