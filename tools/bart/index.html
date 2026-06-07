@@ -281,10 +281,15 @@
     <p class="subtitle">Interactive demo &nbsp;·&nbsp; Lejuez et al. (2002) &nbsp;·&nbsp; 3 rounds</p>
 
     <p class="instructions">
-      Each pump earns you <strong>£0.05</strong>. At any point click
-      <em>Collect money</em> to bank your earnings for this round.
-      The balloon can burst at any pump — if it does, you earn
-      <strong>nothing</strong> for that round. Decide when to stop.
+      Each pump adds money to a temporary reserve. At any point click
+      <em>Collect money</em> to transfer your reserve to your permanent
+      bank. If the balloon bursts, the temporary reserve is lost and you
+      earn <strong>nothing</strong> for that round. The balloon can burst
+      on any pump — even the first one.
+    </p>
+    <p style="font-size:0.75rem;color:var(--faint);margin:-1rem 0 2rem;font-style:italic;">
+      Demo note: in the actual research task, the temporary reserve amount is not displayed —
+      participants must decide without knowing the exact amount at risk.
     </p>
 
     <!-- GAME -->
@@ -296,8 +301,12 @@
           <div id="round-number" class="round-number">Round 1 of 3</div>
         </div>
         <div class="round-earnings">
-          <span class="round-label">Potential earnings</span>
-          <strong id="potential-earnings">£0.00</strong>
+          <span class="round-label">Last balloon</span>
+          <strong id="last-balloon">—</strong>
+        </div>
+        <div class="round-earnings">
+          <span class="round-label">Total earned</span>
+          <strong id="total-display">£0.00</strong>
         </div>
       </div>
 
@@ -352,12 +361,16 @@
       </div>
       <div id="round-results" class="round-results"></div>
       <div class="results-note">
-        <strong>What this measures:</strong> Your average number of pumps
-        on non-burst rounds (the "adjusted BART score") is a validated
-        measure of risk-taking propensity. Higher scores indicate greater
-        willingness to accept risk for larger potential rewards.
-        The task is widely used in behavioural economics and clinical
-        psychology to elicit individual risk preferences.
+        <strong>What this measures:</strong> The adjusted BART score
+        (average pumps on non-burst rounds) is a validated behavioural
+        measure of risk-taking propensity correlated with sensation seeking,
+        impulsivity, and real-world risk behaviours including substance use
+        (Lejuez et al., 2002). The burst mechanism uses sampling without
+        replacement — each pump draws from a shrinking pool, so conditional
+        burst probability increases with every pump. This mirrors real-world
+        situations where excessive risk produces diminishing returns and
+        rising danger. In the original study, the temporary reserve amount
+        is deliberately hidden from participants.
       </div>
       <button id="play-again" class="primary-button" type="button">
         Play again
@@ -384,10 +397,11 @@
 
     // ─── DOM ───────────────────────────────────────────────────────────────────
     var btnPump    = document.getElementById('btn-pump');
-    var btnCollect = document.getElementById('btn-collect');
-    var status     = document.getElementById('status');
-    var potEl      = document.getElementById('potential-earnings');
-    var roundNumEl = document.getElementById('round-number');
+    var btnCollect   = document.getElementById('btn-collect');
+    var status       = document.getElementById('status');
+    var lastBalloon  = document.getElementById('last-balloon');
+    var totalDisplay = document.getElementById('total-display');
+    var roundNumEl   = document.getElementById('round-number');
     var popOverlay = document.getElementById('pop-overlay');
     var arenaEl    = document.getElementById('arena');
 
@@ -440,7 +454,11 @@
     // ─── ROUND INIT ────────────────────────────────────────────────────────────
     function startRound() {
       pumps = 0;
-      // Draw burst point from U{1, MAX_PUMPS} — balloon can burst on pump 1
+      // Simulate sampling without replacement from array [1..MAX_PUMPS].
+      // Burst occurs when "1" is drawn — equivalent to its position in a
+      // random permutation, uniformly distributed on {1, …, MAX_PUMPS}.
+      // Conditional burst probability on pump n = 1 / (MAX_PUMPS − n + 1),
+      // increasing with every pump — the core BART risk mechanic.
       burstAt = Math.floor(Math.random() * MAX_PUMPS) + 1;
       roundActive = true;
 
@@ -451,8 +469,8 @@
       bBody.setAttribute('opacity', '0.88');
       updateBalloon();
 
-      roundNumEl.textContent = 'Round ' + round + ' of ' + ROUNDS;
-      potEl.textContent = fmt(0);
+      roundNumEl.textContent   = 'Round ' + round + ' of ' + ROUNDS;
+      totalDisplay.textContent = fmt(totalEarned);
       btnPump.disabled    = false;
       btnCollect.disabled = true;
       setStatus('Press <strong>Pump</strong> to start inflating the balloon.');
@@ -462,7 +480,6 @@
     btnPump.addEventListener('click', function() {
       if (!roundActive) return;
       pumps++;
-      potEl.textContent = fmt(pumps * EARN_PER_PUMP);
       btnCollect.disabled = false;
 
       // Check burst
@@ -478,6 +495,7 @@
         popOverlay.classList.add('visible');
 
         roundResults.push({ round: round, pumps: pumps, burst: true, earned: 0 });
+        lastBalloon.textContent = '£0.00 (burst)';
 
         setTimeout(function() {
           if (round < ROUNDS) {
@@ -510,6 +528,8 @@
       var earned = pumps * EARN_PER_PUMP;
       totalEarned += earned;
       roundResults.push({ round: round, pumps: pumps, burst: false, earned: earned });
+      lastBalloon.textContent  = fmt(earned);
+      totalDisplay.textContent = fmt(totalEarned);
 
       setStatus(
         'Collected after ' + pumps + ' pump' + (pumps > 1 ? 's' : '') +
