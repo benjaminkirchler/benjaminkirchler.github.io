@@ -534,6 +534,23 @@
       background: var(--paper);
       font-size: 0.82rem;
     }
+    .round-result.payoff-relevant {
+      border: 2px solid var(--accent);
+      background: #EEF3FC;
+    }
+    .payoff-badge {
+      display: inline-block;
+      margin-left: 0.5rem;
+      padding: 0.2rem 0.45rem;
+      background: var(--accent);
+      color: white;
+      font-family: "Inter", sans-serif;
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      vertical-align: 0.15rem;
+    }
     .round-result-header {
       display: flex;
       justify-content: space-between;
@@ -665,6 +682,7 @@
         <li>Select carefully: once you select a box, <strong>you cannot unselect it</strong>.</li>
         <li>When you have selected all the boxes you want, click <strong>Collect money</strong>.</li>
         <li>You will receive no outcome feedback during play. After all three rounds, the results show how many bombs were hidden and whether you selected one.</li>
+        <li>At the end, <strong>one of the three rounds is randomly selected for payment</strong>. Your final bank account equals the earnings from that round only.</li>
       </ol>
 
       <div class="actions">
@@ -723,7 +741,7 @@
       <p id="condition-note" class="condition-note"></p>
 
       <div class="account-panel" aria-label="Potential earnings account">
-        <div class="account-item bank"><span>Bank account</span><strong>Outcomes pending</strong></div>
+        <div class="account-item bank"><span>Final bank account</span><strong>Payoff round pending</strong></div>
         <div class="account-item"><span>Round 1 potential</span><strong id="ledger-1">—</strong></div>
         <div class="account-item"><span>Round 2 potential</span><strong id="ledger-2">—</strong></div>
         <div class="account-item"><span>Round 3 potential</span><strong id="ledger-3">—</strong></div>
@@ -767,7 +785,7 @@
       var condition = null;
       var beliefs = [];
       var round = 0;
-      var total = 0;
+      var payoffRound = null;
       var selectedIndexes = new Set();
       var bombIndexes = new Set();
       var roundResults = [];
@@ -845,9 +863,9 @@
 
       function startGame() {
         round = 0;
-        total = 0;
         roundResults = [];
         beliefs = [];
+        payoffRound = secureRandomInt(roundsPlayed) + 1;
         $("#ledger-1, #ledger-2, #ledger-3").text("—");
         if (condition === "ambiguity") {
           showBeliefQuestion();
@@ -969,7 +987,6 @@
         });
 
         var earned = selectedBombs > 0 ? 0 : selectedIndexes.size * rewardPerBox;
-        total += earned;
         roundResults.push({
           round: round,
           selected: selectedIndexes.size,
@@ -994,18 +1011,29 @@
       });
 
       function showResults() {
-        $("#total-earned").text(formatTokens(Math.round(total / rewardPerBox)));
+        var payoffResult = roundResults.find(function(result) {
+          return result.round === payoffRound;
+        });
+        $("#total-earned").text(formatTokens(Math.round(payoffResult.earned / rewardPerBox)));
         $("#result-condition").html(
           "<strong>Condition:</strong> " +
-          (condition === "risk" ? "Risk — exactly one known bomb." : "Ambiguity — 0, 1, or 2 possible bombs.")
+          (condition === "risk" ? "Risk — exactly one known bomb." : "Ambiguity — 0, 1, or 2 possible bombs.") +
+          " <strong>Payoff-relevant round:</strong> Round " + payoffRound + "."
         );
 
         $("#round-results").empty();
         roundResults.forEach(function(result) {
-          var card = $("<article>", { class: "round-result" });
+          var card = $("<article>", {
+            class: "round-result" + (result.round === payoffRound ? " payoff-relevant" : "")
+          });
           var outcome = result.bombsHit > 0 ? "Bomb selected · round lost" : "No bomb selected · earnings kept";
           var header = $("<div>", { class: "round-result-header" })
-            .append($("<strong>").text("Round " + result.round))
+            .append(
+              $("<strong>").html(
+                "Round " + result.round +
+                (result.round === payoffRound ? '<span class="payoff-badge">Payoff relevant</span>' : "")
+              )
+            )
             .append($("<span>").text(outcome));
           var grid = $("<div>", { class: "result-grid", "aria-label": "Reconstructed grid for round " + result.round });
 
