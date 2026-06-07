@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bomb Risk Elicitation Task · Benjamin Kirchler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --paper: #F8F7F4;
+      --ink: #1A1917;
+      --mid: #6B6963;
+      --accent: #1040A0;
+      --rule: #E0DED9;
+      --danger: #C7392F;
+      --col: clamp(1.25rem, 7vw, 7rem);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, a {
+      font: inherit;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 20;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0 var(--col);
+      background: rgba(248, 247, 244, 0.94);
+      border-top: 2px solid var(--accent);
+      border-bottom: 1px solid var(--rule);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .topbar-name {
+      font-family: "Source Serif 4", serif;
+      font-weight: 600;
+    }
+
+    .topbar-link {
+      color: var(--mid);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+
+    .topbar-link:hover {
+      color: var(--accent);
+    }
+
+    main {
+      width: min(100%, 920px);
+      margin: 0 auto;
+      padding: 8rem var(--col) 5rem;
+    }
+
+    .eyebrow {
+      margin-bottom: 0.8rem;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    h1, h2 {
+      font-family: "Source Serif 4", serif;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 7vw, 4.8rem);
+      font-weight: 600;
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      margin-top: 1rem;
+      color: var(--mid);
+      font-family: "Source Serif 4", serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+    }
+
+    .instructions {
+      max-width: 720px;
+      margin: 2.5rem 0 2rem;
+      padding-left: 1.25rem;
+      border-left: 2px solid var(--accent);
+      color: var(--mid);
+      font-family: "Source Serif 4", serif;
+      font-size: 1.08rem;
+      line-height: 1.75;
+    }
+
+    .game-card, .results-card {
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+      border: 1px solid var(--rule);
+      background: rgba(255, 255, 255, 0.48);
+    }
+
+    .round-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .round-label {
+      color: var(--mid);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .round-number {
+      margin-top: 0.2rem;
+      font-family: "Source Serif 4", serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .round-earnings {
+      text-align: right;
+    }
+
+    .round-earnings strong {
+      display: block;
+      margin-top: 0.2rem;
+      color: var(--accent);
+      font-family: "Source Serif 4", serif;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .grid-wrap {
+      overflow-x: auto;
+      padding: 0.25rem 0 1rem;
+    }
+
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(10, 32px);
+      gap: 4px;
+      width: max-content;
+      margin: 0 auto;
+    }
+
+    .box {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #999;
+      background: #cccccc;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease;
+    }
+
+    .box:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .box.safe-clicked {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .box.safe-clicked::after {
+      content: "";
+      display: block;
+      width: 8px;
+      height: 8px;
+      margin: 11px auto;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .box.bomb-clicked {
+      border-color: var(--danger);
+      background: var(--danger);
+    }
+
+    .box.bomb-clicked::after {
+      content: "×";
+      display: block;
+      color: white;
+      font-size: 1.35rem;
+      font-weight: 600;
+      line-height: 28px;
+      text-align: center;
+    }
+
+    .box:disabled {
+      cursor: default;
+    }
+
+    .status {
+      min-height: 1.5rem;
+      margin: 1rem 0;
+      color: var(--mid);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .status strong {
+      color: var(--ink);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    .primary-button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      padding: 0.8rem 2rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+      transform: none;
+    }
+
+    .results-card {
+      display: none;
+    }
+
+    .results-card h2 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+    }
+
+    .results-intro {
+      margin-top: 0.8rem;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+
+    .total-earned {
+      margin: 2rem 0;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .total-earned span {
+      color: var(--mid);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .total-earned strong {
+      display: block;
+      margin-top: 0.35rem;
+      color: var(--accent);
+      font-family: "Source Serif 4", serif;
+      font-size: 3rem;
+      font-weight: 600;
+    }
+
+    .round-results {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .round-result {
+      display: grid;
+      grid-template-columns: 1fr repeat(3, auto);
+      gap: 1rem;
+      align-items: center;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--rule);
+      font-size: 0.85rem;
+    }
+
+    .round-result strong {
+      font-family: "Source Serif 4", serif;
+      font-size: 1.05rem;
+    }
+
+    .round-result span {
+      color: var(--mid);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 620px) {
+      .topbar-link {
+        font-size: 0;
+      }
+
+      .topbar-link::after {
+        content: "← Website";
+        font-size: 0.72rem;
+      }
+
+      main {
+        padding-top: 7rem;
+      }
+
+      .game-card, .results-card {
+        margin-inline: calc(var(--col) * -0.35);
+      }
+
+      #grid {
+        grid-template-columns: repeat(10, 27px);
+        gap: 3px;
+      }
+
+      .box {
+        width: 27px;
+        height: 27px;
+      }
+
+      .box.safe-clicked::after {
+        margin: 9px auto;
+      }
+
+      .box.bomb-clicked::after {
+        line-height: 23px;
+      }
+
+      .round-result {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="topbar-name" href="../../">Benjamin Kirchler</a>
+    <a class="topbar-link" href="../../">← benjaminkirchler.github.io</a>
+  </header>
+
+  <main>
+    <p class="eyebrow">Behavioural economics tool</p>
+    <h1>Bomb Risk Elicitation Task</h1>
+    <p class="subtitle">Interactive demo · Kirchler &amp; Kirchler (2024)</p>
+
+    <p class="instructions">
+      Click boxes to collect money (10p each). One box hides a bomb — if you click it,
+      you lose that round's earnings. Decide when to stop and collect.
+    </p>
+
+    <section id="game" class="game-card" aria-live="polite">
+      <div class="round-header">
+        <div>
+          <span class="round-label">Current round</span>
+          <div id="round-number" class="round-number">Round 1 of 3</div>
+        </div>
+        <div class="round-earnings">
+          <span class="round-label">Potential earnings</span>
+          <strong id="potential-earnings">£0.00</strong>
+        </div>
+      </div>
+
+      <div class="grid-wrap">
+        <div id="grid" role="grid" aria-label="Bomb risk elicitation grid"></div>
+      </div>
+
+      <p id="status" class="status">Select at least one box, then decide when to collect.</p>
+
+      <div class="actions">
+        <button id="collect" class="primary-button" type="button" disabled>Collect money</button>
+      </div>
+    </section>
+
+    <section id="results" class="results-card" aria-live="polite">
+      <p class="eyebrow">Results</p>
+      <h2>Game complete</h2>
+      <p class="results-intro">Your choices across the three demo rounds are summarised below.</p>
+
+      <div class="total-earned">
+        <span>Total earned</span>
+        <strong id="total-earned">£0.00</strong>
+      </div>
+
+      <div id="round-results" class="round-results"></div>
+
+      <button id="play-again" class="primary-button" type="button">Play again</button>
+    </section>
+  </main>
+
+  <script>
+    $(function() {
+      var risk = 1;
+      var rounds_played = 3;
+      var rewardPerBox = 0.10;
+      var round = 0;
+      var total = 0;
+      var gameEnabled = false;
+      var totalBoxesClicked = 0;
+      var bombsClicked = 0;
+      var roundResults = [];
+
+      function formatMoney(value) {
+        return "£" + value.toFixed(2);
+      }
+
+      function createGrid() {
+        var nCols = 10;
+        var nRows = 10;
+        var nBombs = risk === 1 ? 1 : Math.floor(Math.random() * 3);
+        var bombIndexes = [];
+
+        while (bombIndexes.length < nBombs) {
+          var bombIndex = Math.floor(Math.random() * nCols * nRows);
+          if (!bombIndexes.includes(bombIndex)) {
+            bombIndexes.push(bombIndex);
+          }
+        }
+
+        $("#grid").empty();
+        for (var index = 0; index < nCols * nRows; index++) {
+          $("<button>", {
+            type: "button",
+            class: "box",
+            "aria-label": "Unselected box",
+            "data-bomb": bombIndexes.includes(index) ? "true" : "false"
+          }).appendTo("#grid");
+        }
+      }
+
+      function updateRoundDisplay() {
+        $("#round-number").text("Round " + round + " of " + rounds_played);
+        $("#potential-earnings").text(formatMoney(totalBoxesClicked * rewardPerBox));
+      }
+
+      function startRound() {
+        round++;
+        totalBoxesClicked = 0;
+        bombsClicked = 0;
+        gameEnabled = true;
+        createGrid();
+        updateRoundDisplay();
+        $("#collect").prop("disabled", true).text("Collect money");
+        $("#status").text("Select at least one box, then decide when to collect.");
+      }
+
+      $("#grid").on("click", ".box", function() {
+        if (!gameEnabled || $(this).prop("disabled")) {
+          return;
+        }
+
+        $(this).prop("disabled", true);
+        totalBoxesClicked++;
+
+        if ($(this).attr("data-bomb") === "true") {
+          bombsClicked++;
+          $(this).addClass("bomb-clicked").attr("aria-label", "Bomb selected");
+          $("#status").html("<strong>Bomb selected.</strong> This round's earnings will be lost.");
+        } else {
+          $(this).addClass("safe-clicked").attr("aria-label", "Safe box selected");
+          $("#status").text(totalBoxesClicked + " box" + (totalBoxesClicked === 1 ? "" : "es") + " selected. Continue or collect.");
+        }
+
+        $("#collect").prop("disabled", false);
+        updateRoundDisplay();
+      });
+
+      $("#collect").on("click", function() {
+        if (!gameEnabled || totalBoxesClicked === 0) {
+          return;
+        }
+
+        gameEnabled = false;
+        $(".box").prop("disabled", true);
+
+        var earned = bombsClicked > 0 ? 0 : totalBoxesClicked * rewardPerBox;
+        total += earned;
+        roundResults.push({
+          round: round,
+          boxes: totalBoxesClicked,
+          bombs: bombsClicked,
+          earned: earned
+        });
+
+        if (round < rounds_played) {
+          $("#status").html(
+            "Round complete: <strong>" + formatMoney(earned) + "</strong> collected. Starting the next round..."
+          );
+          $("#collect").prop("disabled", true);
+          window.setTimeout(startRound, 900);
+        } else {
+          showResults();
+        }
+      });
+
+      function showResults() {
+        $("#game").hide();
+        $("#total-earned").text(formatMoney(total));
+        $("#round-results").empty();
+
+        roundResults.forEach(function(result) {
+          $("<div>", { class: "round-result" })
+            .append($("<strong>").text("Round " + result.round))
+            .append($("<span>").text(result.boxes + " boxes clicked"))
+            .append($("<span>").text(result.bombs + " bomb" + (result.bombs === 1 ? "" : "s") + " hit"))
+            .append($("<span>").text(formatMoney(result.earned) + " earned"))
+            .appendTo("#round-results");
+        });
+
+        $("#results").show();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      $("#play-again").on("click", function() {
+        round = 0;
+        total = 0;
+        roundResults = [];
+        $("#results").hide();
+        $("#game").show();
+        startRound();
+      });
+
+      startRound();
+    });
+  </script>
+</body>
+</html>
