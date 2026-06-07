@@ -456,6 +456,51 @@
     }
     .btn-email:hover { background: #0c2e7a; gap: 0.75rem; }
 
+    /* ── RESEARCH TOOLS ── */
+    #tools { background: var(--paper); }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--s4);
+      margin-top: var(--s2);
+    }
+    .tool-card {
+      border: 1px solid var(--rule);
+      padding: var(--s4);
+      display: flex; flex-direction: column; gap: var(--s2);
+      transition: border-color var(--trans), box-shadow var(--trans);
+      background: var(--paper);
+    }
+    .tool-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(16,64,160,0.07); }
+    .tool-tag {
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent);
+    }
+    .tool-name {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t1); font-weight: 600;
+      color: var(--ink); line-height: 1.3;
+    }
+    .tool-desc {
+      font-family: 'Source Serif 4', serif;
+      font-size: var(--t-1); color: var(--mid);
+      line-height: 1.7; flex: 1;
+    }
+    .tool-citation {
+      font-size: var(--t-2); color: var(--faint);
+      font-style: italic; line-height: 1.5;
+    }
+    .tool-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: var(--t-2); font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); margin-top: var(--s1);
+      transition: gap var(--trans);
+    }
+    .tool-link:hover { gap: 0.65rem; }
+    .tool-link.disabled { color: var(--faint); pointer-events: none; }
+
     /* ── FOOTER ── */
     footer {
       padding: var(--s4) var(--col);
@@ -509,6 +554,7 @@
       <li><a href="#about">About</a></li>
       <li><a href="#publications">Publications</a></li>
       <li><a href="#projects">Projects</a></li>
+      <li><a href="#tools">Tools</a></li>
       <li><a href="#data">Data & Tools</a></li>
       <li><a href="#cv">CV</a></li>
       <li><a href="#contact">Contact</a></li>
@@ -815,6 +861,49 @@
           <p class="project-desc">Building a statistically representative reference load dataset at DSO level as a foundation for forecasting and data-driven grid models, in cooperation with Energienetze Steiermark and Kärnten Netz.</p>
         </div>
       </article>
+
+    </div>
+  </section>
+
+  <!-- RESEARCH TOOLS -->
+  <section id="tools">
+    <div class="section-header reveal">
+      <p class="section-eyebrow">Research Tools</p>
+      <h2 class="section-heading">Interactive experiments<br>& <em>replication tasks.</em></h2>
+    </div>
+    <div class="tools-grid reveal">
+
+      <div class="tool-card">
+        <span class="tool-tag">Risk Preferences</span>
+        <p class="tool-name">Bomb Risk Elicitation Task</p>
+        <p class="tool-desc">A 10×10 grid with hidden bombs. Click boxes to collect money — but stop before hitting a bomb. Measures individual risk tolerance under uncertainty.</p>
+        <p class="tool-citation">Crosetto & Filippin (2013), adapted for social reference points by Kirchler & Kirchler (2024)</p>
+        <a href="tools/bret/" class="tool-link">Try the task ↗</a>
+      </div>
+
+      <div class="tool-card">
+        <span class="tool-tag">Risk Preferences</span>
+        <p class="tool-name">Balloon Analogue Risk Task</p>
+        <p class="tool-desc">Pump a balloon to earn money — but if it bursts, you lose the round. A classic sequential risk measure with dynamic feedback.</p>
+        <p class="tool-citation">Lejuez et al. (2002)</p>
+        <a class="tool-link disabled">Coming soon</a>
+      </div>
+
+      <div class="tool-card">
+        <span class="tool-tag">Social Preferences</span>
+        <p class="tool-name">Dictator Game</p>
+        <p class="tool-desc">Decide how to split an endowment with an anonymous other. A clean measure of altruism and fairness preferences.</p>
+        <p class="tool-citation">Kahneman, Knetsch & Thaler (1986)</p>
+        <a class="tool-link disabled">Coming soon</a>
+      </div>
+
+      <div class="tool-card">
+        <span class="tool-tag">Social Preferences</span>
+        <p class="tool-name">Ultimatum Game</p>
+        <p class="tool-desc">Propose a split — the other player accepts or rejects. If rejected, both earn nothing. Measures fairness norms and strategic reasoning.</p>
+        <p class="tool-citation">Güth, Schmittberger & Schwarze (1982)</p>
+        <a class="tool-link disabled">Coming soon</a>
+      </div>
 
     </div>
   </section>
