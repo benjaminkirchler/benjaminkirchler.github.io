@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BART — Balloon Analogue Risk Task · Benjamin Kirchler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:  #F8F7F4;
+      --ink:    #1A1917;
+      --mid:    #6B6963;
+      --faint:  #A8A49F;
+      --rule:   #E0DED9;
+      --subtle: #EFEDE8;
+      --accent: #1040A0;
+      --gold:   #C4882A;
+      --danger: #C0392B;
+      --trans:  0.2s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 52px; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 2rem;
+      background: rgba(248,247,244,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule);
+    }
+    .topbar::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+    }
+    .topbar-logo {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1rem; font-weight: 600; color: var(--ink);
+    }
+    .topbar-back {
+      font-size: 0.72rem; font-weight: 500;
+      color: var(--mid); text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color var(--trans);
+    }
+    .topbar-back:hover { color: var(--accent); }
+
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 90px 2rem 4rem;
+    }
+
+    /* ── HEADER ── */
+    .task-eyebrow {
+      font-size: 0.64rem; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.5rem;
+    }
+    .task-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .task-subtitle {
+      font-size: 0.8rem; color: var(--mid);
+      margin-bottom: 1.5rem;
+    }
+    .task-instruction {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1rem; line-height: 1.8;
+      color: var(--mid);
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      display: flex; gap: 0; margin-bottom: 2rem;
+      border: 1px solid var(--rule);
+    }
+    .stat-box {
+      flex: 1; padding: 0.75rem 1rem;
+      border-right: 1px solid var(--rule);
+      text-align: center;
+    }
+    .stat-box:last-child { border-right: none; }
+    .stat-box-label {
+      font-size: 0.6rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--faint); display: block; margin-bottom: 0.2rem;
+    }
+    .stat-box-value {
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--accent); letter-spacing: -0.02em;
+    }
+    #stat-banked { color: var(--ink); }
+
+    /* ── BALLOON ARENA ── */
+    .arena {
+      border: 1px solid var(--rule);
+      background: #fff;
+      height: 320px;
+      display: flex; align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .arena-label {
+      position: absolute; top: 1rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.64rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--faint);
+    }
+
+    /* ── BALLOON SVG ── */
+    #balloon-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      transition: transform 0.15s ease;
+    }
+    #balloon-svg {
+      transition: all 0.15s ease;
+    }
+    .balloon-string {
+      width: 2px; height: 40px;
+      background: var(--mid); margin-top: 0;
+    }
+
+    /* ── POP ANIMATION ── */
+    @keyframes popShake {
+      0%   { transform: scale(1); }
+      20%  { transform: scale(1.3) rotate(-5deg); }
+      40%  { transform: scale(0.8) rotate(5deg); }
+      60%  { transform: scale(1.1) rotate(-3deg); }
+      80%  { transform: scale(0.95); }
+      100% { transform: scale(1); opacity: 0; }
+    }
+    .popping { animation: popShake 0.5s ease forwards; }
+
+    /* ── POP MESSAGE ── */
+    .pop-message {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Source Serif 4', serif;
+      font-size: 1.4rem; font-weight: 600;
+      color: var(--danger);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+      text-align: center;
+    }
+    .pop-message.show { opacity: 1; }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .btn {
+      flex: 1; padding: 0.85rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background var(--trans), transform 0.08s ease;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    .btn-pump {
+      background: var(--accent); color: #fff;
+    }
+    .btn-pump:hover:not(:disabled) { background: #0c2e7a; }
+
+    .btn-collect {
+      background: transparent; color: var(--ink);
+      border: 1px solid var(--rule);
+    }
+    .btn-collect:hover:not(:disabled) { border-color: var(--ink); }
+
+    /* ── ROUND RESULT ── */
+    .round-result {
+      display: none;
+      border: 1px solid var(--rule);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.95rem; line-height: 1.7; color: var(--mid);
+    }
+    .round-result strong { color: var(--ink); }
+    .round-result.pop { border-color: var(--danger); }
+    .round-result.safe { border-color: #27ae60; }
+
+    .btn-next {
+      width: 100%; padding: 0.9rem;
+      background: var(--ink); color: #fff;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background var(--trans);
+      display: none;
+    }
+    .btn-next:hover { background: var(--accent); }
+
+    /* ── RESULTS SCREEN ── */
+    .results-screen {
+      display: none;
+      text-align: center; padding: 2rem 0;
+    }
+    .results-screen h2 {
+      font-family: 'Source Serif 4', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 700; color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .results-screen .results-sub {
+      font-size: 0.8rem; color: var(--mid);
+      margin-bottom: 2rem;
+    }
+    .results-table {
+      width: 100%; border-collapse: collapse;
+      margin-bottom: 2rem; text-align: left;
+    }
+    .results-table th {
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--faint); padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .results-table td {
+      font-size: 0.9rem; padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--rule);
+      color: var(--mid);
+    }
+    .results-table td strong { color: var(--ink); }
+    .results-table .pop-row td { color: var(--danger); }
+    .results-total {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1.8rem; font-weight: 700;
+      color: var(--accent); margin-bottom: 0.25rem;
+    }
+    .results-total-label {
+      font-size: 0.72rem; color: var(--mid);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+    }
+    .results-note {
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.85rem; color: var(--mid);
+      line-height: 1.7; margin-bottom: 2rem;
+      padding: 1rem 1.25rem;
+      border-left: 3px solid var(--rule);
+      text-align: left;
+    }
+    .btn-again {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.9rem 2rem;
+      background: var(--accent); color: #fff;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: background var(--trans);
+    }
+    .btn-again:hover { background: #0c2e7a; }
+
+    /* ── PROGRESS DOTS ── */
+    .progress-dots {
+      display: flex; gap: 0.4rem;
+      justify-content: center; margin-bottom: 1.5rem;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--rule);
+      transition: background var(--trans);
+    }
+    .dot.done { background: var(--accent); }
+    .dot.active { background: var(--ink); }
+    .dot.popped { background: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="topbar-logo">Benjamin Kirchler</span>
+    <a href="../../" class="topbar-back">← benjaminkirchler.github.io</a>
+  </div>
+
+  <div class="page">
+
+    <div class="task-eyebrow">Interactive Demo · Risk Elicitation</div>
+    <h1 class="task-title">Balloon Analogue<br>Risk Task</h1>
+    <p class="task-subtitle">Lejuez et al. (2002) &nbsp;·&nbsp; 3 rounds</p>
+
+    <p class="task-instruction">
+      Pump the balloon to earn <strong>5p per pump</strong>. At any point, click
+      <em>Collect</em> to bank your earnings for the round. But careful — the balloon
+      can pop at any time. If it pops, you earn nothing for that round.
+    </p>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen">
+
+      <div class="progress-dots" id="progress-dots"></div>
+
+      <div class="stats-bar">
+        <div class="stat-box">
+          <span class="stat-box-label">Round</span>
+          <span class="stat-box-value" id="stat-round">1 / 3</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-label">This round</span>
+          <span class="stat-box-value" id="stat-round-earn">0p</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-label">Banked total</span>
+          <span class="stat-box-value" id="stat-banked">0p</span>
+        </div>
+      </div>
+
+      <div class="arena">
+        <span class="arena-label">Pump to inflate</span>
+        <div class="pop-message" id="pop-message">💥 It popped!</div>
+        <div id="balloon-wrap">
+          <svg id="balloon-svg" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+            <ellipse id="balloon-body" cx="50" cy="55" rx="30" ry="35"
+              fill="#1040A0" opacity="0.85"/>
+            <ellipse id="balloon-shine" cx="38" cy="40" rx="8" ry="10"
+              fill="white" opacity="0.25"/>
+            <polygon id="balloon-knot" points="47,90 53,90 50,97"
+              fill="#0c2e7a"/>
+          </svg>
+          <div class="balloon-string"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-pump" id="btn-pump">Pump ↑</button>
+        <button class="btn btn-collect" id="btn-collect">Collect</button>
+      </div>
+
+      <div class="round-result" id="round-result"></div>
+      <button class="btn-next" id="btn-next"></button>
+
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div class="results-screen" id="results-screen">
+      <h2>Game complete</h2>
+      <p class="results-sub">Here's how you did across 3 rounds</p>
+      <table class="results-table" id="results-table">
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th>Pumps</th>
+            <th>Outcome</th>
+            <th>Earned</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+      <div class="results-total" id="results-total"></div>
+      <div class="results-total-label">Total earned</div>
+      <div class="results-note">
+        <strong>What this measures:</strong> The number of pumps before collecting
+        (or before the balloon pops) is a measure of your risk tolerance.
+        More pumps = higher willingness to take risks.
+        The BART is widely used in behavioural economics and psychology research
+        to elicit individual risk preferences.
+      </div>
+      <button class="btn-again" onclick="location.reload()">Play again ↺</button>
+    </div>
+
+  </div>
+
+  <script>
+    // ── CONFIG ──────────────────────────────────────────────────────────────────
+    const ROUNDS       = 3;
+    const EARN_PER_PUMP = 5;      // pence per pump
+    const MAX_PUMPS    = 64;      // balloon always pops by this point
+    const MIN_PUMPS    = 8;       // can't pop before this many pumps
+
+    // ── STATE ───────────────────────────────────────────────────────────────────
+    let round        = 1;
+    let pumps        = 0;
+    let banked       = 0;
+    let popAt        = newPopPoint();
+    let roundActive  = true;
+    let results      = [];  // {pumps, popped, earned}
+
+    // ── DOM ─────────────────────────────────────────────────────────────────────
+    const btnPump     = document.getElementById('btn-pump');
+    const btnCollect  = document.getElementById('btn-collect');
+    const btnNext     = document.getElementById('btn-next');
+    const statRound   = document.getElementById('stat-round');
+    const statEarn    = document.getElementById('stat-round-earn');
+    const statBanked  = document.getElementById('stat-banked');
+    const roundResult = document.getElementById('round-result');
+    const popMsg      = document.getElementById('pop-message');
+    const gameScreen  = document.getElementById('game-screen');
+    const resultsScreen = document.getElementById('results-screen');
+
+    // ── BALLOON SVG ELEMENTS ─────────────────────────────────────────────────
+    const balloonBody  = document.getElementById('balloon-body');
+    const balloonShine = document.getElementById('balloon-shine');
+    const balloonKnot  = document.getElementById('balloon-knot');
+    const balloonSvg   = document.getElementById('balloon-svg');
+    const balloonWrap  = document.getElementById('balloon-wrap');
+
+    // ── HELPERS ─────────────────────────────────────────────────────────────────
+    function newPopPoint() {
+      return Math.floor(Math.random() * (MAX_PUMPS - MIN_PUMPS)) + MIN_PUMPS;
+    }
+
+    function getBalloonSize() {
+      // Scale from 30px radius at 0 pumps to 120px at MAX_PUMPS
+      const progress = Math.min(pumps / MAX_PUMPS, 1);
+      return 30 + progress * 90;
+    }
+
+    function getBalloonColor() {
+      // Blue → yellow-green → danger red as it inflates
+      const progress = Math.min(pumps / MAX_PUMPS, 1);
+      if (progress < 0.5) return '#1040A0';
+      if (progress < 0.75) return '#C4882A';
+      return '#C0392B';
+    }
+
+    function updateBalloon() {
+      const r = getBalloonSize();
+      const cx = 50, baseCy = 55;
+      const ry = r, rx = r * 0.85;
+      const cy = baseCy - (r - 35);
+
+      balloonBody.setAttribute('cx', cx);
+      balloonBody.setAttribute('cy', cy);
+      balloonBody.setAttribute('rx', rx);
+      balloonBody.setAttribute('ry', ry);
+      balloonBody.setAttribute('fill', getBalloonColor());
+
+      // Shine stays proportional
+      balloonShine.setAttribute('cx', cx - rx * 0.25);
+      balloonShine.setAttribute('cy', cy - ry * 0.25);
+      balloonShine.setAttribute('rx', rx * 0.22);
+      balloonShine.setAttribute('ry', ry * 0.22);
+
+      // Knot at bottom of balloon
+      const knotY = cy + ry;
+      balloonKnot.setAttribute('points',
+        `${cx-3},${knotY} ${cx+3},${knotY} ${cx},${knotY+7}`);
+
+      // Scale the SVG viewBox to fit
+      const svgSize = r * 2 + 20;
+      balloonSvg.setAttribute('width', svgSize);
+      balloonSvg.setAttribute('height', svgSize + 40);
+      balloonSvg.setAttribute('viewBox',
+        `${cx - r - 10} ${cy - r - 10} ${svgSize} ${svgSize + 40}`);
+    }
+
+    function buildDots() {
+      const dots = document.getElementById('progress-dots');
+      dots.innerHTML = '';
+      for (let i = 1; i <= ROUNDS; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot' + (i === round ? ' active' : '');
+        if (i < round) {
+          const prev = results[i - 1];
+          d.className = 'dot ' + (prev && prev.popped ? 'popped' : 'done');
+        }
+        dots.appendChild(d);
+      }
+    }
+
+    function updateStats() {
+      statRound.textContent  = `${round} / ${ROUNDS}`;
+      statEarn.textContent   = `${pumps * EARN_PER_PUMP}p`;
+      statBanked.textContent = `${banked}p`;
+    }
+
+    // ── PUMP ────────────────────────────────────────────────────────────────────
+    btnPump.addEventListener('click', () => {
+      if (!roundActive) return;
+      pumps++;
+      updateBalloon();
+      updateStats();
+
+      if (pumps >= popAt) {
+        // POPPED
+        roundActive = false;
+        btnPump.disabled    = true;
+        btnCollect.disabled = true;
+        balloonWrap.classList.add('popping');
+        popMsg.classList.add('show');
+
+        setTimeout(() => {
+          balloonWrap.style.opacity = '0';
+          results.push({ pumps, popped: true, earned: 0 });
+          roundResult.innerHTML =
+            `💥 <strong>The balloon popped</strong> after ${pumps} pump${pumps>1?'s':''}. ` +
+            `You earn <strong>0p</strong> this round.`;
+          roundResult.className = 'round-result pop';
+          roundResult.style.display = 'block';
+          btnNext.textContent = round < ROUNDS ? 'Next round →' : 'See results →';
+          btnNext.style.display = 'block';
+          buildDots();
+        }, 550);
+      }
+    });
+
+    // ── COLLECT ─────────────────────────────────────────────────────────────────
+    btnCollect.addEventListener('click', () => {
+      if (!roundActive || pumps === 0) {
+        if (pumps === 0) alert('Pump at least once before collecting!');
+        return;
+      }
+      roundActive = false;
+      btnPump.disabled    = true;
+      btnCollect.disabled = true;
+
+      const earned = pumps * EARN_PER_PUMP;
+      banked += earned;
+      results.push({ pumps, popped: false, earned });
+
+      roundResult.innerHTML =
+        `✓ <strong>Collected after ${pumps} pump${pumps>1?'s':''}.</strong> ` +
+        `You earn <strong>${earned}p</strong>. ` +
+        `Running total: <strong>${banked}p</strong>.`;
+      roundResult.className = 'round-result safe';
+      roundResult.style.display = 'block';
+      btnNext.textContent = round < ROUNDS ? 'Next round →' : 'See results →';
+      btnNext.style.display = 'block';
+      buildDots();
+      updateStats();
+    });
+
+    // ── NEXT ROUND / END ────────────────────────────────────────────────────────
+    btnNext.addEventListener('click', () => {
+      if (round >= ROUNDS) {
+        showResults();
+        return;
+      }
+      round++;
+      pumps        = 0;
+      popAt        = newPopPoint();
+      roundActive  = true;
+
+      balloonWrap.style.opacity = '1';
+      balloonWrap.classList.remove('popping');
+      popMsg.classList.remove('show');
+      roundResult.style.display = 'none';
+      btnNext.style.display     = 'none';
+      btnPump.disabled    = false;
+      btnCollect.disabled = false;
+
+      updateBalloon();
+      updateStats();
+      buildDots();
+    });
+
+    // ── RESULTS ─────────────────────────────────────────────────────────────────
+    function showResults() {
+      gameScreen.style.display = 'none';
+      resultsScreen.style.display = 'block';
+
+      const tbody = document.getElementById('results-body');
+      results.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        if (r.popped) tr.className = 'pop-row';
+        tr.innerHTML = `
+          <td><strong>Round ${i+1}</strong></td>
+          <td>${r.pumps}</td>
+          <td>${r.popped ? '💥 Popped' : '✓ Collected'}</td>
+          <td>${r.earned}p</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('results-total').textContent = `${banked}p`;
+    }
+
+    // ── INIT ────────────────────────────────────────────────────────────────────
+    buildDots();
+    updateBalloon();
+    updateStats();
+  </script>
+</body>
+</html>
