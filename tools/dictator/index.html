@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dictator Game · Benjamin Kirchler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --paper:#F8F7F4; --ink:#1A1917; --mid:#6B6963; --accent:#1040A0; --rule:#E0DED9; --gold:#C4882A; --col:clamp(1.25rem,7vw,7rem); }
+    body { min-height:100vh; background:var(--paper); color:var(--ink); font-family:"Inter",sans-serif; -webkit-font-smoothing:antialiased; }
+    button,input { font:inherit; } a { color:inherit; text-decoration:none; }
+    .topbar { position:fixed; inset:0 0 auto; z-index:20; height:52px; display:flex; align-items:center; justify-content:space-between; padding:0 var(--col); background:rgba(248,247,244,.94); border-top:2px solid var(--accent); border-bottom:1px solid var(--rule); backdrop-filter:blur(12px); }
+    .topbar-name,h1,h2 { font-family:"Source Serif 4",serif; } .topbar-name { font-weight:600; }
+    .topbar-link { color:var(--mid); font-size:.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    main { width:min(100%,900px); margin:auto; padding:8rem var(--col) 5rem; }
+    .eyebrow { margin-bottom:.8rem; color:var(--accent); font-size:.72rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase; }
+    h1 { font-size:clamp(2.7rem,7vw,4.8rem); line-height:1.02; letter-spacing:-.025em; }
+    .subtitle { margin-top:1rem; color:var(--mid); font-family:"Source Serif 4",serif; font-size:1.15rem; }
+    .intro { margin:2.5rem 0 2rem; padding-left:1.25rem; border-left:2px solid var(--accent); color:var(--mid); font-family:"Source Serif 4",serif; font-size:1.08rem; line-height:1.75; }
+    .card { padding:clamp(1.25rem,4vw,2.5rem); border:1px solid var(--rule); background:rgba(255,255,255,.48); }
+    .screen { display:none; } .screen.active { display:block; }
+    h2 { font-size:clamp(2rem,5vw,3.4rem); line-height:1.08; letter-spacing:-.02em; }
+    .screen-copy { margin-top:.8rem; color:var(--mid); line-height:1.7; }
+    .rules { display:grid; gap:1rem; margin:2rem 0; list-style:none; counter-reset:rules; }
+    .rules li { position:relative; padding:0 0 1rem 3rem; border-bottom:1px solid var(--rule); color:var(--mid); line-height:1.65; counter-increment:rules; }
+    .rules li::before { content:counter(rules); position:absolute; left:0; display:grid; width:2rem; height:2rem; border:1px solid var(--accent); border-radius:50%; color:var(--accent); font-size:.75rem; font-weight:600; place-items:center; }
+    .rules strong { color:var(--ink); }
+    .split-panel { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:2rem 0; }
+    .person { padding:1.5rem; border:1px solid var(--rule); background:var(--paper); text-align:center; }
+    .person-icon { display:grid; width:3rem; height:3rem; margin:0 auto .7rem; border:1px solid var(--accent); border-radius:50%; color:var(--accent); font-size:1.2rem; place-items:center; }
+    .person span { color:var(--mid); font-size:.7rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase; }
+    .person strong { display:block; margin-top:.4rem; font-family:"Source Serif 4",serif; font-size:2rem; }
+    .allocation { margin:1.5rem 0; }
+    .allocation label { display:block; margin-bottom:.8rem; font-weight:600; }
+    input[type=range] { width:100%; accent-color:var(--accent); cursor:pointer; }
+    .scale { display:flex; justify-content:space-between; margin-top:.5rem; color:var(--mid); font-size:.72rem; }
+    .token-bar { display:flex; height:18px; margin:1.5rem 0; overflow:hidden; border:1px solid var(--rule); }
+    .bar-self { background:var(--accent); } .bar-other { background:var(--gold); }
+    .actions { display:flex; justify-content:center; gap:.75rem; flex-wrap:wrap; margin-top:1.5rem; }
+    .primary,.secondary { cursor:pointer; padding:.8rem 2rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; }
+    .primary { border:0; background:var(--accent); color:white; } .secondary { border:1px solid var(--rule); background:transparent; color:var(--mid); }
+    .result-summary { margin:2rem 0; padding:1.5rem 0; border-block:1px solid var(--rule); }
+    .result-summary strong { display:block; margin-top:.35rem; color:var(--accent); font-family:"Source Serif 4",serif; font-size:2.4rem; }
+    .interpretation { padding:1.25rem; border:1px solid var(--rule); background:var(--paper); color:var(--mid); line-height:1.7; }
+    @media(max-width:620px){ .topbar-link{font-size:0}.topbar-link::after{content:"← Website";font-size:.72rem}.split-panel{grid-template-columns:1fr}main{padding-top:7rem}.card{margin-inline:calc(var(--col)*-.35)} }
+  </style>
+</head>
+<body>
+  <header class="topbar"><a class="topbar-name" href="../../">Benjamin Kirchler</a><a class="topbar-link" href="../../">← benjaminkirchler.github.io</a></header>
+  <main>
+    <p class="eyebrow">Behavioural economics tool</p>
+    <h1>Dictator Game</h1>
+    <p class="subtitle">Interactive demonstration · Kahneman, Knetsch &amp; Thaler (1986)</p>
+    <p class="intro">How much would you voluntarily share when the other person cannot reject your decision?</p>
+
+    <section id="instructions" class="screen active card">
+      <p class="eyebrow">Instructions</p><h2>Divide 100 tokens</h2>
+      <ol class="rules">
+        <li>You receive an endowment of <strong>100 tokens</strong>.</li>
+        <li>Choose how many tokens to give to an <strong>anonymous recipient</strong>.</li>
+        <li>The recipient cannot accept, reject, or change your allocation.</li>
+        <li>Your decision fully determines both final payoffs.</li>
+      </ol>
+      <div class="actions"><button id="start" class="primary" type="button">Make allocation</button></div>
+    </section>
+
+    <section id="decision" class="screen card">
+      <p class="eyebrow">Your decision</p><h2>How will you split the endowment?</h2>
+      <div class="split-panel">
+        <div class="person"><div class="person-icon">You</div><span>You keep</span><strong id="self-value">50 tokens</strong></div>
+        <div class="person"><div class="person-icon">?</div><span>Recipient receives</span><strong id="other-value">50 tokens</strong></div>
+      </div>
+      <div class="token-bar" aria-hidden="true"><div id="bar-self" class="bar-self" style="width:50%"></div><div id="bar-other" class="bar-other" style="width:50%"></div></div>
+      <div class="allocation"><label for="give">Tokens given to the recipient</label><input id="give" type="range" min="0" max="100" value="50"><div class="scale"><span>Give 0</span><span>Give 100</span></div></div>
+      <div class="actions"><button id="confirm" class="primary" type="button">Confirm allocation</button></div>
+    </section>
+
+    <section id="results" class="screen card">
+      <p class="eyebrow">Results</p><h2>Allocation complete</h2>
+      <div class="split-panel">
+        <div class="person"><div class="person-icon">You</div><span>Your payoff</span><strong id="result-self"></strong></div>
+        <div class="person"><div class="person-icon">?</div><span>Recipient payoff</span><strong id="result-other"></strong></div>
+      </div>
+      <div class="result-summary"><span>You gave away</span><strong id="result-share"></strong></div>
+      <p id="interpretation" class="interpretation"></p>
+      <div class="actions"><button id="again" class="primary" type="button">Play again</button></div>
+    </section>
+  </main>
+  <script>
+    (function(){
+      var give=document.getElementById("give");
+      function show(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active")});document.getElementById(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+      function update(){var other=Number(give.value),self=100-other;document.getElementById("self-value").textContent=self+" tokens";document.getElementById("other-value").textContent=other+" tokens";document.getElementById("bar-self").style.width=self+"%";document.getElementById("bar-other").style.width=other+"%"}
+      document.getElementById("start").onclick=function(){show("decision")};
+      give.oninput=update;
+      document.getElementById("confirm").onclick=function(){var other=Number(give.value),self=100-other;document.getElementById("result-self").textContent=self+" tokens";document.getElementById("result-other").textContent=other+" tokens";document.getElementById("result-share").textContent=other+"% of the endowment";var text=other===0?"You retained the entire endowment.":other<50?"You shared part of the endowment while keeping the larger amount.":other===50?"You chose an equal split.":"You gave the recipient more than half of the endowment.";document.getElementById("interpretation").textContent=text+" In research, Dictator Game allocations are used as a simple behavioural measure of generosity and distributional preferences.";show("results")};
+      document.getElementById("again").onclick=function(){give.value=50;update();show("instructions")};
+      update();
+    })();
+  </script>
+</body>
+</html>

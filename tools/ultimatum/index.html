@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimatum Game · Benjamin Kirchler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,600&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--paper:#F8F7F4;--ink:#1A1917;--mid:#6B6963;--accent:#1040A0;--rule:#E0DED9;--danger:#C7392F;--green:#287A4A;--gold:#C4882A;--col:clamp(1.25rem,7vw,7rem)}
+    body{min-height:100vh;background:var(--paper);color:var(--ink);font-family:"Inter",sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}a{color:inherit;text-decoration:none}
+    .topbar{position:fixed;inset:0 0 auto;z-index:20;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--col);background:rgba(248,247,244,.94);border-top:2px solid var(--accent);border-bottom:1px solid var(--rule);backdrop-filter:blur(12px)}.topbar-name,h1,h2,h3{font-family:"Source Serif 4",serif}.topbar-name{font-weight:600}.topbar-link{color:var(--mid);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+    main{width:min(100%,920px);margin:auto;padding:8rem var(--col) 5rem}.eyebrow{margin-bottom:.8rem;color:var(--accent);font-size:.72rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase}h1{font-size:clamp(2.7rem,7vw,4.8rem);line-height:1.02;letter-spacing:-.025em}.subtitle{margin-top:1rem;color:var(--mid);font-family:"Source Serif 4",serif;font-size:1.15rem}.intro{margin:2.5rem 0 2rem;padding-left:1.25rem;border-left:2px solid var(--accent);color:var(--mid);font-family:"Source Serif 4",serif;font-size:1.08rem;line-height:1.75}
+    .card{padding:clamp(1.25rem,4vw,2.5rem);border:1px solid var(--rule);background:rgba(255,255,255,.48)}.screen{display:none}.screen.active{display:block}h2{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;letter-spacing:-.02em}.copy{margin-top:.8rem;color:var(--mid);line-height:1.7}.role-grid,.split-panel{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}
+    .role{padding:1.5rem;border:1px solid var(--rule);background:var(--paper);cursor:pointer;text-align:left;transition:.2s}.role:hover{border-color:var(--accent);transform:translateY(-2px)}.role span{color:var(--accent);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}.role h3{margin:.5rem 0;font-size:1.7rem}.role p{color:var(--mid);font-size:.86rem;line-height:1.65}
+    .person{padding:1.5rem;border:1px solid var(--rule);background:var(--paper);text-align:center}.person-icon{display:grid;width:3rem;height:3rem;margin:0 auto .7rem;border:1px solid var(--accent);border-radius:50%;color:var(--accent);font-size:1rem;place-items:center}.person span{color:var(--mid);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}.person strong{display:block;margin-top:.4rem;font-family:"Source Serif 4",serif;font-size:2rem}.allocation{margin:1.5rem 0}.allocation label{display:block;margin-bottom:.8rem;font-weight:600}input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}.scale{display:flex;justify-content:space-between;margin-top:.5rem;color:var(--mid);font-size:.72rem}.token-bar{display:flex;height:18px;margin:1.5rem 0;overflow:hidden;border:1px solid var(--rule)}.bar-you{background:var(--accent)}.bar-other{background:var(--gold)}
+    .actions{display:flex;justify-content:center;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem}.primary,.secondary,.accept,.reject{cursor:pointer;padding:.8rem 2rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}.primary{border:0;background:var(--accent);color:#fff}.secondary{border:1px solid var(--rule);background:transparent;color:var(--mid)}.accept{border:0;background:var(--green);color:#fff}.reject{border:0;background:var(--danger);color:#fff}
+    .outcome{margin:2rem 0;padding:1.5rem;border:1px solid var(--rule);background:var(--paper);text-align:center}.outcome.accepted{border-color:var(--green)}.outcome.rejected{border-color:var(--danger)}.outcome strong{display:block;font-family:"Source Serif 4",serif;font-size:2.2rem}.outcome p{margin-top:.6rem;color:var(--mid);line-height:1.65}.simulation-note{margin-top:1.5rem;color:var(--mid);font-size:.76rem;line-height:1.6}
+    @media(max-width:620px){.topbar-link{font-size:0}.topbar-link::after{content:"← Website";font-size:.72rem}.role-grid,.split-panel{grid-template-columns:1fr}main{padding-top:7rem}.card{margin-inline:calc(var(--col)*-.35)}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><a class="topbar-name" href="../../">Benjamin Kirchler</a><a class="topbar-link" href="../../">← benjaminkirchler.github.io</a></header>
+  <main>
+    <p class="eyebrow">Behavioural economics tool</p><h1>Ultimatum Game</h1>
+    <p class="subtitle">Interactive demonstration · Güth, Schmittberger &amp; Schwarze (1982)</p>
+    <p class="intro">A proposer suggests how to divide 100 tokens. The responder can accept the split or reject it, in which case both receive nothing.</p>
+
+    <section id="roles" class="screen active card">
+      <p class="eyebrow">Choose a role</p><h2>Propose or respond?</h2><p class="copy">Try either side of the bargaining problem.</p>
+      <div class="role-grid">
+        <button class="role" data-role="proposer" type="button"><span>Make an offer</span><h3>Play proposer</h3><p>Choose how many tokens to offer. A simulated responder then accepts or rejects.</p></button>
+        <button class="role" data-role="responder" type="button"><span>Evaluate an offer</span><h3>Play responder</h3><p>Receive a simulated proposal and decide whether both players earn the proposed split.</p></button>
+      </div>
+      <p class="simulation-note">This standalone demonstration uses simulated counterpart decisions; no live participant is connected.</p>
+    </section>
+
+    <section id="proposer" class="screen card">
+      <p class="eyebrow">You are the proposer</p><h2>Make an offer</h2><p class="copy">The responder may reject your offer. If rejected, both players receive 0 tokens.</p>
+      <div class="split-panel"><div class="person"><div class="person-icon">You</div><span>You keep</span><strong id="p-self">50 tokens</strong></div><div class="person"><div class="person-icon">?</div><span>You offer</span><strong id="p-other">50 tokens</strong></div></div>
+      <div class="token-bar"><div id="p-bar-self" class="bar-you" style="width:50%"></div><div id="p-bar-other" class="bar-other" style="width:50%"></div></div>
+      <div class="allocation"><label for="offer">Tokens offered to the responder</label><input id="offer" type="range" min="0" max="100" value="50"><div class="scale"><span>Offer 0</span><span>Offer 100</span></div></div>
+      <div class="actions"><button id="submit-offer" class="primary" type="button">Submit offer</button></div>
+    </section>
+
+    <section id="responder" class="screen card">
+      <p class="eyebrow">You are the responder</p><h2>Accept or reject?</h2><p class="copy">A simulated proposer offers you the following split. Rejecting means both receive nothing.</p>
+      <div class="split-panel"><div class="person"><div class="person-icon">?</div><span>Proposer keeps</span><strong id="r-other"></strong></div><div class="person"><div class="person-icon">You</div><span>You receive</span><strong id="r-self"></strong></div></div>
+      <div class="actions"><button id="accept" class="accept" type="button">Accept offer</button><button id="reject" class="reject" type="button">Reject offer</button></div>
+    </section>
+
+    <section id="results" class="screen card">
+      <p class="eyebrow">Outcome</p><h2 id="result-title"></h2><div id="outcome" class="outcome"><strong id="result-payoff"></strong><p id="result-copy"></p></div>
+      <div class="actions"><button id="again" class="primary" type="button">Play again</button></div>
+    </section>
+  </main>
+  <script>
+    (function(){
+      var offer=document.getElementById("offer");
+      function randomInt(max){var a=new Uint32Array(1),limit=0x100000000-(0x100000000%max);do{crypto.getRandomValues(a)}while(a[0]>=limit);return a[0]%max}
+      function show(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active")});document.getElementById(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+      function updateOffer(){var other=Number(offer.value),self=100-other;document.getElementById("p-self").textContent=self+" tokens";document.getElementById("p-other").textContent=other+" tokens";document.getElementById("p-bar-self").style.width=self+"%";document.getElementById("p-bar-other").style.width=other+"%"}
+      function result(accepted,self,other,copy){document.getElementById("result-title").textContent=accepted?"Offer accepted":"Offer rejected";document.getElementById("outcome").className="outcome "+(accepted?"accepted":"rejected");document.getElementById("result-payoff").textContent=accepted?"You earn "+self+" tokens · Other earns "+other+" tokens":"Both players earn 0 tokens";document.getElementById("result-copy").textContent=copy;show("results")}
+      document.querySelectorAll(".role").forEach(function(b){b.onclick=function(){if(b.dataset.role==="proposer"){offer.value=50;updateOffer();show("proposer")}else{var received=randomInt(51),kept=100-received;document.getElementById("r-self").textContent=received+" tokens";document.getElementById("r-other").textContent=kept+" tokens";document.getElementById("accept").dataset.offer=received;document.getElementById("reject").dataset.offer=received;show("responder")}}});
+      offer.oninput=updateOffer;
+      document.getElementById("submit-offer").onclick=function(){var offered=Number(offer.value),kept=100-offered,threshold=randomInt(51),accepted=offered>=threshold;result(accepted,kept,offered,"The simulated responder's hidden minimum acceptable offer was "+threshold+" tokens. Ultimatum Game offers reflect both fairness concerns and strategic expectations about rejection.")};
+      document.getElementById("accept").onclick=function(){var received=Number(this.dataset.offer);result(true,received,100-received,"You accepted the proposal, so the suggested split is implemented.")};
+      document.getElementById("reject").onclick=function(){var received=Number(this.dataset.offer);result(false,0,0,"You rejected an offer of "+received+" tokens, so both players receive nothing.")};
+      document.getElementById("again").onclick=function(){show("roles")};updateOffer();
+    })();
+  </script>
+</body>
+</html>
