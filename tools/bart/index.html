@@ -91,6 +91,61 @@
       font-size: 1.08rem; line-height: 1.75;
     }
 
+    /* ── PROB EXPLAINER ── */
+    .prob-explainer {
+      max-width: 720px;
+      margin: 1rem 0 2rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--rule);
+      font-size: 0.85rem; color: var(--mid); line-height: 1.6;
+    }
+    .prob-explainer strong { color: var(--ink); }
+
+    /* ── RISK GAUGE ── */
+    .risk-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .risk-label {
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid); white-space: nowrap;
+      min-width: 110px;
+    }
+    .risk-bar-wrap {
+      flex: 1; height: 6px;
+      background: var(--rule); position: relative;
+    }
+    .risk-bar-fill {
+      height: 100%; width: 0%;
+      background: var(--accent);
+      transition: width 0.15s ease, background 0.15s ease;
+    }
+    .risk-pct {
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--accent); min-width: 42px; text-align: right;
+      transition: color 0.15s ease;
+    }
+
+    /* ── EARNINGS ROW ── */
+    .earnings-row {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 0.25rem 0 1rem;
+    }
+    .earnings-label {
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid); white-space: nowrap; min-width: 110px;
+    }
+    .earnings-val {
+      font-family: "Source Serif 4", serif;
+      font-size: 1.1rem; font-weight: 600;
+      color: var(--accent);
+    }
+    .earnings-delta {
+      font-size: 0.75rem; color: var(--mid);
+    }
+
     /* ── GAME CARD ── */
     .game-card, .results-card {
       padding: clamp(1.25rem, 4vw, 2.5rem);
@@ -281,16 +336,19 @@
     <p class="subtitle">Interactive demo &nbsp;·&nbsp; Lejuez et al. (2002) &nbsp;·&nbsp; 3 rounds</p>
 
     <p class="instructions">
-      Each pump adds money to a temporary reserve. At any point click
-      <em>Collect money</em> to transfer your reserve to your permanent
-      bank. If the balloon bursts, the temporary reserve is lost and you
-      earn <strong>nothing</strong> for that round. The balloon can burst
-      on any pump — even the first one.
+      Each pump earns <strong>£0.05</strong> added to a temporary reserve.
+      Click <em>Collect money</em> to bank it permanently. If the balloon
+      bursts, the temporary reserve is lost. The balloon can burst on any
+      pump — even the first one.
     </p>
-    <p style="font-size:0.75rem;color:var(--faint);margin:-1rem 0 2rem;font-style:italic;">
-      Demo note: in the actual research task, the temporary reserve amount is not displayed —
-      participants must decide without knowing the exact amount at risk.
-    </p>
+    <div class="prob-explainer">
+      <strong>How the probability works:</strong> Each round a secret
+      break point is drawn from a uniform distribution. Your burst risk on
+      pump&nbsp;<em>n</em> is <strong>1&nbsp;÷&nbsp;(32&nbsp;−&nbsp;n)</strong>
+      — it starts at ~3% and rises with every pump. Each round is
+      independent: surviving 15 pumps in round&nbsp;1 tells you nothing
+      about round&nbsp;2.
+    </div>
 
     <!-- GAME -->
     <section id="game" class="game-card" aria-live="polite">
@@ -331,6 +389,22 @@
           <line id="b-string" x1="50" y1="93" x2="50" y2="128"
             stroke="#6B6963" stroke-width="1.5"/>
         </svg>
+      </div>
+
+      <!-- EARNINGS THIS ROUND -->
+      <div class="earnings-row">
+        <span class="earnings-label">This round</span>
+        <span class="earnings-val" id="round-reserve">£0.00</span>
+        <span class="earnings-delta" id="round-delta"></span>
+      </div>
+
+      <!-- BURST RISK GAUGE -->
+      <div class="risk-row">
+        <span class="risk-label">Next pump risk</span>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar-fill" id="risk-bar"></div>
+        </div>
+        <span class="risk-pct" id="risk-pct">3.1%</span>
       </div>
 
       <p id="status" class="status">
@@ -402,6 +476,10 @@
     var lastBalloon  = document.getElementById('last-balloon');
     var totalDisplay = document.getElementById('total-display');
     var roundNumEl   = document.getElementById('round-number');
+    var roundReserve = document.getElementById('round-reserve');
+    var roundDelta   = document.getElementById('round-delta');
+    var riskBar      = document.getElementById('risk-bar');
+    var riskPct      = document.getElementById('risk-pct');
     var popOverlay = document.getElementById('pop-overlay');
     var arenaEl    = document.getElementById('arena');
 
@@ -451,6 +529,31 @@
 
     function setStatus(html) { status.innerHTML = html; }
 
+    function updateRiskGauge() {
+      // Conditional burst probability on next pump = 1 / (MAX_PUMPS - pumps)
+      var remaining = MAX_PUMPS - pumps;
+      var prob = remaining > 0 ? 1 / remaining : 1;
+      var pct  = (prob * 100).toFixed(1);
+
+      // Colour: accent blue → gold → danger red
+      var colour = prob < 0.1  ? '#1040A0'
+                 : prob < 0.25 ? '#C4882A'
+                 : '#C7392F';
+
+      riskBar.style.width      = Math.min(prob * 100, 100) + '%';
+      riskBar.style.background = colour;
+      riskPct.textContent      = pct + '%';
+      riskPct.style.color      = colour;
+    }
+
+    function updateReserve() {
+      var reserve = pumps * EARN_PER_PUMP;
+      roundReserve.textContent = fmt(reserve);
+      roundDelta.textContent   = pumps > 0
+        ? '(+£0.05 per pump — ' + pumps + ' pump' + (pumps > 1 ? 's' : '') + ')'
+        : '';
+    }
+
     // ─── ROUND INIT ────────────────────────────────────────────────────────────
     function startRound() {
       pumps = 0;
@@ -471,8 +574,11 @@
 
       roundNumEl.textContent   = 'Round ' + round + ' of ' + ROUNDS;
       totalDisplay.textContent = fmt(totalEarned);
+      roundReserve.textContent = '£0.00';
+      roundDelta.textContent   = '';
       btnPump.disabled    = false;
       btnCollect.disabled = true;
+      updateRiskGauge();
       setStatus('Press <strong>Pump</strong> to start inflating the balloon.');
     }
 
@@ -481,6 +587,8 @@
       if (!roundActive) return;
       pumps++;
       btnCollect.disabled = false;
+      updateReserve();
+      updateRiskGauge();
 
       // Check burst
       if (pumps >= burstAt) {
@@ -495,7 +603,11 @@
         popOverlay.classList.add('visible');
 
         roundResults.push({ round: round, pumps: pumps, burst: true, earned: 0 });
-        lastBalloon.textContent = '£0.00 (burst)';
+        lastBalloon.textContent  = '£0.00 (burst)';
+        riskBar.style.width      = '100%';
+        riskBar.style.background = '#C7392F';
+        riskPct.textContent      = '💥';
+        riskPct.style.color      = '#C7392F';
 
         setTimeout(function() {
           if (round < ROUNDS) {
