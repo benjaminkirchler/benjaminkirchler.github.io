@@ -12,11 +12,7 @@
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --paper: #F8F7F4;
@@ -25,6 +21,7 @@
       --accent: #1040A0;
       --rule: #E0DED9;
       --danger: #C7392F;
+      --coin: #D39B2A;
       --col: clamp(1.25rem, 7vw, 7rem);
     }
 
@@ -36,14 +33,8 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    button, a {
-      font: inherit;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+    button, input { font: inherit; }
+    a { color: inherit; text-decoration: none; }
 
     .topbar {
       position: fixed;
@@ -76,12 +67,10 @@
       transition: color 0.2s ease;
     }
 
-    .topbar-link:hover {
-      color: var(--accent);
-    }
+    .topbar-link:hover { color: var(--accent); }
 
     main {
-      width: min(100%, 920px);
+      width: min(100%, 940px);
       margin: 0 auto;
       padding: 8rem var(--col) 5rem;
     }
@@ -95,9 +84,7 @@
       text-transform: uppercase;
     }
 
-    h1, h2 {
-      font-family: "Source Serif 4", serif;
-    }
+    h1, h2, h3 { font-family: "Source Serif 4", serif; }
 
     h1 {
       font-size: clamp(2.5rem, 7vw, 4.8rem);
@@ -114,7 +101,7 @@
     }
 
     .instructions {
-      max-width: 720px;
+      max-width: 760px;
       margin: 2.5rem 0 2rem;
       padding-left: 1.25rem;
       border-left: 2px solid var(--accent);
@@ -124,11 +111,115 @@
       line-height: 1.75;
     }
 
-    .game-card, .results-card {
+    .card {
       padding: clamp(1.25rem, 4vw, 2.5rem);
       border: 1px solid var(--rule);
       background: rgba(255, 255, 255, 0.48);
     }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .screen h2 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
+
+    .screen-intro {
+      max-width: 720px;
+      margin-top: 0.8rem;
+      color: var(--mid);
+      line-height: 1.7;
+    }
+
+    .condition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .condition-button {
+      min-height: 190px;
+      padding: 1.5rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .condition-button:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .condition-button span {
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .condition-button h3 {
+      margin: 0.5rem 0;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .condition-button p {
+      color: var(--mid);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .belief-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .belief-field {
+      padding: 1rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+    }
+
+    .belief-field label {
+      display: block;
+      margin-bottom: 0.65rem;
+      font-weight: 600;
+    }
+
+    .belief-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .belief-field input {
+      width: 100%;
+      padding: 0.65rem;
+      border: 1px solid var(--rule);
+      background: white;
+      color: var(--ink);
+    }
+
+    .belief-field span { color: var(--mid); }
+
+    .belief-total {
+      margin-bottom: 1.5rem;
+      color: var(--mid);
+      font-size: 0.9rem;
+    }
+
+    .belief-total strong { color: var(--ink); }
+    .belief-total.invalid strong { color: var(--danger); }
 
     .round-header {
       display: flex;
@@ -148,25 +239,27 @@
       text-transform: uppercase;
     }
 
-    .round-number {
-      margin-top: 0.2rem;
-      font-family: "Source Serif 4", serif;
-      font-size: 1.8rem;
-      font-weight: 600;
-    }
-
-    .round-earnings {
-      text-align: right;
-    }
-
-    .round-earnings strong {
+    .round-number, .round-earnings strong {
       display: block;
       margin-top: 0.2rem;
-      color: var(--accent);
       font-family: "Source Serif 4", serif;
       font-size: 1.8rem;
       font-weight: 600;
     }
+
+    .round-earnings { text-align: right; }
+    .round-earnings strong { color: var(--accent); }
+
+    .condition-note {
+      margin-bottom: 1.2rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--rule);
+      color: var(--mid);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .condition-note strong { color: var(--ink); }
 
     .grid-wrap {
       overflow-x: auto;
@@ -175,57 +268,79 @@
 
     #grid {
       display: grid;
-      grid-template-columns: repeat(10, 32px);
+      grid-template-columns: repeat(10, 34px);
       gap: 4px;
       width: max-content;
       margin: 0 auto;
     }
 
     .box {
-      width: 32px;
-      height: 32px;
+      position: relative;
+      width: 34px;
+      height: 34px;
       border: 1px solid #999;
       background: #cccccc;
       cursor: pointer;
-      transition: transform 0.12s ease, background 0.15s ease;
+      transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
     }
 
-    .box:hover:not(:disabled) {
-      transform: translateY(-1px);
-    }
+    .box:hover:not(:disabled) { transform: translateY(-1px); }
 
-    .box.safe-clicked {
-      border-color: var(--accent);
-      background: var(--accent);
-    }
-
-    .box.safe-clicked::after {
-      content: "";
-      display: block;
-      width: 8px;
-      height: 8px;
-      margin: 11px auto;
-      border-radius: 50%;
+    .box.selected {
+      border: 2px solid var(--accent);
       background: white;
     }
 
-    .box.bomb-clicked {
+    .box.selected::after {
+      content: "✓";
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 29px;
+    }
+
+    .box.open {
+      border-color: var(--rule);
+      background: white;
+      cursor: default;
+    }
+
+    .box.open::after { content: ""; }
+
+    .box.coin {
+      border-color: var(--accent);
+      background: #EEF3FC;
+    }
+
+    .box.coin::after {
+      content: "10";
+      display: grid;
+      width: 22px;
+      height: 22px;
+      margin: 5px auto;
+      border-radius: 50%;
+      background: var(--coin);
+      color: white;
+      font-size: 0.62rem;
+      font-weight: 600;
+      line-height: 22px;
+      place-items: center;
+    }
+
+    .box.bomb {
       border-color: var(--danger);
       background: var(--danger);
     }
 
-    .box.bomb-clicked::after {
-      content: "×";
-      display: block;
+    .box.bomb::after {
+      content: "✹";
       color: white;
-      font-size: 1.35rem;
-      font-weight: 600;
-      line-height: 28px;
-      text-align: center;
+      font-size: 1.25rem;
+      line-height: 30px;
     }
 
-    .box:disabled {
-      cursor: default;
+    .box.unselected-safe {
+      background: #F1F0ED;
     }
 
     .status {
@@ -237,19 +352,16 @@
       text-align: center;
     }
 
-    .status strong {
-      color: var(--ink);
-    }
+    .status strong { color: var(--ink); }
 
     .actions {
       display: flex;
       justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
 
-    .primary-button {
-      border: 0;
-      background: var(--accent);
-      color: white;
+    .primary-button, .secondary-button {
       cursor: pointer;
       padding: 0.8rem 2rem;
       font-weight: 600;
@@ -258,30 +370,24 @@
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
-    .primary-button:hover {
-      transform: translateY(-1px);
+    .primary-button {
+      border: 0;
+      background: var(--accent);
+      color: white;
     }
+
+    .secondary-button {
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--mid);
+    }
+
+    .primary-button:hover, .secondary-button:hover { transform: translateY(-1px); }
 
     .primary-button:disabled {
       cursor: not-allowed;
       opacity: 0.4;
       transform: none;
-    }
-
-    .results-card {
-      display: none;
-    }
-
-    .results-card h2 {
-      font-size: clamp(2.2rem, 6vw, 4rem);
-      font-weight: 600;
-      letter-spacing: -0.025em;
-    }
-
-    .results-intro {
-      margin-top: 0.8rem;
-      color: var(--mid);
-      line-height: 1.7;
     }
 
     .total-earned {
@@ -308,6 +414,13 @@
       font-weight: 600;
     }
 
+    .result-meta {
+      margin-bottom: 1rem;
+      color: var(--mid);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
     .round-results {
       display: grid;
       gap: 0.75rem;
@@ -316,12 +429,12 @@
 
     .round-result {
       display: grid;
-      grid-template-columns: 1fr repeat(3, auto);
+      grid-template-columns: 1fr repeat(4, auto);
       gap: 1rem;
       align-items: center;
       padding: 0.9rem 0;
       border-bottom: 1px solid var(--rule);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
     }
 
     .round-result strong {
@@ -334,46 +447,18 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 620px) {
-      .topbar-link {
-        font-size: 0;
-      }
-
-      .topbar-link::after {
-        content: "← Website";
-        font-size: 0.72rem;
-      }
-
-      main {
-        padding-top: 7rem;
-      }
-
-      .game-card, .results-card {
-        margin-inline: calc(var(--col) * -0.35);
-      }
-
-      #grid {
-        grid-template-columns: repeat(10, 27px);
-        gap: 3px;
-      }
-
-      .box {
-        width: 27px;
-        height: 27px;
-      }
-
-      .box.safe-clicked::after {
-        margin: 9px auto;
-      }
-
-      .box.bomb-clicked::after {
-        line-height: 23px;
-      }
-
-      .round-result {
-        grid-template-columns: 1fr;
-        gap: 0.3rem;
-      }
+    @media (max-width: 680px) {
+      .topbar-link { font-size: 0; }
+      .topbar-link::after { content: "← Website"; font-size: 0.72rem; }
+      main { padding-top: 7rem; }
+      .card { margin-inline: calc(var(--col) * -0.35); }
+      .condition-grid, .belief-grid { grid-template-columns: 1fr; }
+      #grid { grid-template-columns: repeat(10, 27px); gap: 3px; }
+      .box { width: 27px; height: 27px; }
+      .box.selected::after { line-height: 22px; }
+      .box.coin::after { width: 19px; height: 19px; margin: 3px auto; line-height: 19px; }
+      .box.bomb::after { line-height: 23px; }
+      .round-result { grid-template-columns: 1fr; gap: 0.3rem; }
     }
   </style>
 </head>
@@ -390,11 +475,64 @@
     <p class="subtitle">Interactive demo · Kirchler &amp; Kirchler (2024)</p>
 
     <p class="instructions">
-      Click boxes to collect money (10p each). One box hides a bomb — if you click it,
-      you lose that round's earnings. Decide when to stop and collect.
+      Select as many boxes as you want. Each selected safe box earns 10p, but selecting
+      any hidden bomb means losing the entire round. When you are satisfied with your
+      choice, reveal the outcome.
     </p>
 
-    <section id="game" class="game-card" aria-live="polite">
+    <section id="setup-screen" class="screen active card">
+      <p class="eyebrow">Choose a condition</p>
+      <h2>Risk or ambiguity?</h2>
+      <p class="screen-intro">
+        Compare decisions when probabilities are known with decisions when the number
+        of hidden bombs is uncertain.
+      </p>
+
+      <div class="condition-grid">
+        <button class="condition-button" type="button" data-condition="risk">
+          <span>Known probability</span>
+          <h3>Risk</h3>
+          <p>Exactly one of the 100 boxes contains a bomb. Every box therefore has a known 1% chance of hiding it.</p>
+        </button>
+        <button class="condition-button" type="button" data-condition="ambiguity">
+          <span>Unknown probability</span>
+          <h3>Ambiguity</h3>
+          <p>The grid may contain 0, 1, or 2 bombs. You are not told how likely each possibility is.</p>
+        </button>
+      </div>
+    </section>
+
+    <section id="belief-screen" class="screen card">
+      <p class="eyebrow">Before you play</p>
+      <h2>What do you believe?</h2>
+      <p class="screen-intro">
+        Allocate exactly 100 probability points across the three possible outcomes.
+        More points mean you believe that outcome is more likely.
+      </p>
+
+      <div class="belief-grid">
+        <div class="belief-field">
+          <label for="belief-0">0 bombs</label>
+          <div class="belief-input-wrap"><input id="belief-0" type="number" min="0" max="100" value="33"><span>points</span></div>
+        </div>
+        <div class="belief-field">
+          <label for="belief-1">1 bomb</label>
+          <div class="belief-input-wrap"><input id="belief-1" type="number" min="0" max="100" value="34"><span>points</span></div>
+        </div>
+        <div class="belief-field">
+          <label for="belief-2">2 bombs</label>
+          <div class="belief-input-wrap"><input id="belief-2" type="number" min="0" max="100" value="33"><span>points</span></div>
+        </div>
+      </div>
+
+      <p id="belief-total" class="belief-total">Total: <strong>100</strong> / 100 points</p>
+      <div class="actions">
+        <button id="start-ambiguity" class="primary-button" type="button">Start ambiguity game</button>
+        <button class="secondary-button back-to-setup" type="button">Back</button>
+      </div>
+    </section>
+
+    <section id="game-screen" class="screen card" aria-live="polite">
       <div class="round-header">
         <div>
           <span class="round-label">Current round</span>
@@ -406,27 +544,32 @@
         </div>
       </div>
 
+      <p id="condition-note" class="condition-note"></p>
+
       <div class="grid-wrap">
         <div id="grid" role="grid" aria-label="Bomb risk elicitation grid"></div>
       </div>
 
-      <p id="status" class="status">Select at least one box, then decide when to collect.</p>
+      <p id="status" class="status">Select at least one box, then reveal the outcome.</p>
 
       <div class="actions">
-        <button id="collect" class="primary-button" type="button" disabled>Collect money</button>
+        <button id="reveal" class="primary-button" type="button" disabled>Reveal outcome</button>
+        <button id="next-round" class="primary-button" type="button" hidden>Next round</button>
       </div>
     </section>
 
-    <section id="results" class="results-card" aria-live="polite">
+    <section id="results-screen" class="screen card" aria-live="polite">
       <p class="eyebrow">Results</p>
       <h2>Game complete</h2>
-      <p class="results-intro">Your choices across the three demo rounds are summarised below.</p>
+      <p class="screen-intro">Your choices across the three demo rounds are summarised below.</p>
 
       <div class="total-earned">
         <span>Total earned</span>
         <strong id="total-earned">£0.00</strong>
       </div>
 
+      <p id="result-condition" class="result-meta"></p>
+      <p id="result-beliefs" class="result-meta"></p>
       <div id="round-results" class="round-results"></div>
 
       <button id="play-again" class="primary-button" type="button">Play again</button>
@@ -435,137 +578,262 @@
 
   <script>
     $(function() {
-      var risk = 1;
-      var rounds_played = 3;
+      var roundsPlayed = 3;
       var rewardPerBox = 0.10;
+      var condition = null;
+      var beliefs = null;
       var round = 0;
       var total = 0;
-      var gameEnabled = false;
-      var totalBoxesClicked = 0;
-      var bombsClicked = 0;
+      var selectedIndexes = new Set();
+      var bombIndexes = new Set();
       var roundResults = [];
+      var roundRevealed = false;
+
+      function secureRandomInt(maxExclusive) {
+        if (maxExclusive <= 0) {
+          throw new Error("Maximum must be greater than zero.");
+        }
+
+        var maxUint = 0x100000000;
+        var limit = maxUint - (maxUint % maxExclusive);
+        var values = new Uint32Array(1);
+        var value;
+
+        do {
+          window.crypto.getRandomValues(values);
+          value = values[0];
+        } while (value >= limit);
+
+        return value % maxExclusive;
+      }
 
       function formatMoney(value) {
         return "£" + value.toFixed(2);
       }
 
-      function createGrid() {
-        var nCols = 10;
-        var nRows = 10;
-        var nBombs = risk === 1 ? 1 : Math.floor(Math.random() * 3);
-        var bombIndexes = [];
+      function showScreen(id) {
+        $(".screen").removeClass("active");
+        $(id).addClass("active");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-        while (bombIndexes.length < nBombs) {
-          var bombIndex = Math.floor(Math.random() * nCols * nRows);
-          if (!bombIndexes.includes(bombIndex)) {
-            bombIndexes.push(bombIndex);
-          }
+      function drawBombCount() {
+        return condition === "risk" ? 1 : secureRandomInt(3);
+      }
+
+      function drawBombLocations(nBombs) {
+        bombIndexes = new Set();
+        while (bombIndexes.size < nBombs) {
+          bombIndexes.add(secureRandomInt(100));
         }
+      }
 
+      function createGrid() {
         $("#grid").empty();
-        for (var index = 0; index < nCols * nRows; index++) {
+        for (var index = 0; index < 100; index++) {
           $("<button>", {
             type: "button",
             class: "box",
             "aria-label": "Unselected box",
-            "data-bomb": bombIndexes.includes(index) ? "true" : "false"
+            "data-index": index
           }).appendTo("#grid");
         }
       }
 
       function updateRoundDisplay() {
-        $("#round-number").text("Round " + round + " of " + rounds_played);
-        $("#potential-earnings").text(formatMoney(totalBoxesClicked * rewardPerBox));
+        $("#round-number").text("Round " + round + " of " + roundsPlayed);
+        $("#potential-earnings").text(formatMoney(selectedIndexes.size * rewardPerBox));
+        $("#reveal").prop("disabled", selectedIndexes.size === 0);
+      }
+
+      function updateConditionNote() {
+        if (condition === "risk") {
+          $("#condition-note").html("<strong>Risk condition:</strong> exactly one bomb is hidden among the 100 boxes.");
+        } else {
+          $("#condition-note").html("<strong>Ambiguity condition:</strong> the grid contains 0, 1, or 2 bombs; their likelihoods are not disclosed.");
+        }
+      }
+
+      function startGame() {
+        round = 0;
+        total = 0;
+        roundResults = [];
+        showScreen("#game-screen");
+        startRound();
       }
 
       function startRound() {
         round++;
-        totalBoxesClicked = 0;
-        bombsClicked = 0;
-        gameEnabled = true;
+        selectedIndexes = new Set();
+        roundRevealed = false;
+        drawBombLocations(drawBombCount());
         createGrid();
         updateRoundDisplay();
-        $("#collect").prop("disabled", true).text("Collect money");
-        $("#status").text("Select at least one box, then decide when to collect.");
+        updateConditionNote();
+        $("#status").text("Select at least one box, then reveal the outcome.");
+        $("#reveal").prop("hidden", false);
+        $("#next-round").prop("hidden", true).text(round < roundsPlayed ? "Next round" : "View results");
       }
 
+      $(".condition-button").on("click", function() {
+        condition = $(this).attr("data-condition");
+        beliefs = null;
+        if (condition === "ambiguity") {
+          showScreen("#belief-screen");
+        } else {
+          startGame();
+        }
+      });
+
+      $(".back-to-setup").on("click", function() {
+        showScreen("#setup-screen");
+      });
+
+      $(".belief-field input").on("input", function() {
+        var beliefValues = ["#belief-0", "#belief-1", "#belief-2"].map(function(id) {
+          return Number($(id).val());
+        });
+        var totalBelief = beliefValues.reduce(function(sum, value) {
+          return sum + (value || 0);
+        }, 0);
+        var validBeliefs = beliefValues.every(function(value) {
+          return Number.isFinite(value) && value >= 0 && value <= 100;
+        }) && totalBelief === 100;
+
+        $("#belief-total").toggleClass("invalid", !validBeliefs)
+          .html("Total: <strong>" + totalBelief + "</strong> / 100 points");
+        $("#start-ambiguity").prop("disabled", !validBeliefs);
+      });
+
+      $("#start-ambiguity").on("click", function() {
+        beliefs = {
+          zero: Number($("#belief-0").val()),
+          one: Number($("#belief-1").val()),
+          two: Number($("#belief-2").val())
+        };
+        if (
+          beliefs.zero >= 0 && beliefs.zero <= 100 &&
+          beliefs.one >= 0 && beliefs.one <= 100 &&
+          beliefs.two >= 0 && beliefs.two <= 100 &&
+          beliefs.zero + beliefs.one + beliefs.two === 100
+        ) {
+          startGame();
+        }
+      });
+
       $("#grid").on("click", ".box", function() {
-        if (!gameEnabled || $(this).prop("disabled")) {
+        if (roundRevealed) {
           return;
         }
 
-        $(this).prop("disabled", true);
-        totalBoxesClicked++;
-
-        if ($(this).attr("data-bomb") === "true") {
-          bombsClicked++;
-          $(this).addClass("bomb-clicked").attr("aria-label", "Bomb selected");
-          $("#status").html("<strong>Bomb selected.</strong> This round's earnings will be lost.");
+        var index = Number($(this).attr("data-index"));
+        if (selectedIndexes.has(index)) {
+          selectedIndexes.delete(index);
+          $(this).removeClass("selected").attr("aria-label", "Unselected box");
         } else {
-          $(this).addClass("safe-clicked").attr("aria-label", "Safe box selected");
-          $("#status").text(totalBoxesClicked + " box" + (totalBoxesClicked === 1 ? "" : "es") + " selected. Continue or collect.");
+          selectedIndexes.add(index);
+          $(this).addClass("selected").attr("aria-label", "Selected box");
         }
 
-        $("#collect").prop("disabled", false);
+        $("#status").text(
+          selectedIndexes.size === 0
+            ? "Select at least one box, then reveal the outcome."
+            : selectedIndexes.size + " box" + (selectedIndexes.size === 1 ? "" : "es") + " selected. You can revise your choice or reveal."
+        );
         updateRoundDisplay();
       });
 
-      $("#collect").on("click", function() {
-        if (!gameEnabled || totalBoxesClicked === 0) {
+      $("#reveal").on("click", function() {
+        if (roundRevealed || selectedIndexes.size === 0) {
           return;
         }
 
-        gameEnabled = false;
-        $(".box").prop("disabled", true);
+        roundRevealed = true;
+        var selectedBombs = 0;
 
-        var earned = bombsClicked > 0 ? 0 : totalBoxesClicked * rewardPerBox;
+        $(".box").each(function() {
+          var index = Number($(this).attr("data-index"));
+          var isBomb = bombIndexes.has(index);
+          var isSelected = selectedIndexes.has(index);
+          $(this).prop("disabled", true).removeClass("selected").addClass("open");
+
+          if (isBomb) {
+            $(this).addClass("bomb").attr("aria-label", isSelected ? "Selected bomb" : "Unselected bomb");
+            if (isSelected) {
+              selectedBombs++;
+            }
+          } else if (isSelected) {
+            $(this).addClass("coin").attr("aria-label", "Selected safe box worth 10 pence");
+          } else {
+            $(this).addClass("unselected-safe").attr("aria-label", "Unselected safe box");
+          }
+        });
+
+        var earned = selectedBombs > 0 ? 0 : selectedIndexes.size * rewardPerBox;
         total += earned;
         roundResults.push({
           round: round,
-          boxes: totalBoxesClicked,
-          bombs: bombsClicked,
+          selected: selectedIndexes.size,
+          bombsPresent: bombIndexes.size,
+          bombsHit: selectedBombs,
           earned: earned
         });
 
-        if (round < rounds_played) {
-          $("#status").html(
-            "Round complete: <strong>" + formatMoney(earned) + "</strong> collected. Starting the next round..."
-          );
-          $("#collect").prop("disabled", true);
-          window.setTimeout(startRound, 900);
+        if (selectedBombs > 0) {
+          $("#status").html("<strong>Bomb hit.</strong> You earned £0.00 this round.");
+        } else {
+          $("#status").html("<strong>Safe choice.</strong> You earned " + formatMoney(earned) + " this round.");
+        }
+
+        $("#potential-earnings").text(formatMoney(earned));
+        $("#reveal").prop("hidden", true);
+        $("#next-round").prop("hidden", false);
+      });
+
+      $("#next-round").on("click", function() {
+        if (round < roundsPlayed) {
+          startRound();
         } else {
           showResults();
         }
       });
 
       function showResults() {
-        $("#game").hide();
         $("#total-earned").text(formatMoney(total));
-        $("#round-results").empty();
+        $("#result-condition").html(
+          "<strong>Condition:</strong> " +
+          (condition === "risk" ? "Risk — exactly one known bomb." : "Ambiguity — 0, 1, or 2 possible bombs.")
+        );
 
+        if (beliefs) {
+          $("#result-beliefs").html(
+            "<strong>Your prior beliefs:</strong> 0 bombs: " + beliefs.zero +
+            " points · 1 bomb: " + beliefs.one +
+            " points · 2 bombs: " + beliefs.two + " points."
+          ).show();
+        } else {
+          $("#result-beliefs").hide();
+        }
+
+        $("#round-results").empty();
         roundResults.forEach(function(result) {
           $("<div>", { class: "round-result" })
             .append($("<strong>").text("Round " + result.round))
-            .append($("<span>").text(result.boxes + " boxes clicked"))
-            .append($("<span>").text(result.bombs + " bomb" + (result.bombs === 1 ? "" : "s") + " hit"))
+            .append($("<span>").text(result.selected + " selected"))
+            .append($("<span>").text(result.bombsPresent + " hidden bomb" + (result.bombsPresent === 1 ? "" : "s")))
+            .append($("<span>").text(result.bombsHit + " hit"))
             .append($("<span>").text(formatMoney(result.earned) + " earned"))
             .appendTo("#round-results");
         });
 
-        $("#results").show();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        showScreen("#results-screen");
       }
 
       $("#play-again").on("click", function() {
-        round = 0;
-        total = 0;
-        roundResults = [];
-        $("#results").hide();
-        $("#game").show();
-        startRound();
+        condition = null;
+        beliefs = null;
+        showScreen("#setup-screen");
       });
-
-      startRound();
     });
   </script>
 </body>
