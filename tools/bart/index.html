@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -312,6 +313,53 @@
     }
     .results-note strong { color: var(--ink); }
 
+    /* ── ABOUT SECTION ── */
+    .about-task {
+      margin-top: 2rem;
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.48);
+    }
+    .about-task-title {
+      font-family: "Source Serif 4", serif;
+      font-size: 1.5rem; font-weight: 600;
+      letter-spacing: -0.01em; margin-bottom: 1.5rem;
+      padding-bottom: 1rem; border-bottom: 1px solid var(--rule);
+    }
+    .about-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem; align-items: start;
+    }
+    .about-stat {
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--rule);
+    }
+    .about-stat-label {
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 0.3rem;
+    }
+    .about-stat-value {
+      font-family: "Source Serif 4", serif;
+      font-size: 0.95rem; color: var(--ink); line-height: 1.6;
+    }
+    .about-stat-value strong { color: var(--accent); }
+    .chart-wrap { position: relative; width: 100%; height: 200px; }
+    .chart-caption {
+      font-size: 0.65rem; color: var(--faint);
+      text-align: center; margin-top: 0.5rem; font-style: italic;
+    }
+    .cite {
+      margin-top: 1.5rem; padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.72rem; color: var(--faint); font-style: italic;
+      line-height: 1.6;
+    }
+    @media (max-width: 680px) {
+      .about-cols { grid-template-columns: 1fr; }
+    }
+
     /* ── MOBILE ── */
     @media (max-width: 620px) {
       .topbar-link { font-size: 0; }
@@ -450,6 +498,42 @@
         Play again
       </button>
     </section>
+    <!-- ABOUT SECTION -->
+    <div class="about-task">
+      <h2 class="about-task-title">About this task</h2>
+      <div class="about-cols">
+        <div>
+          <div class="about-stat">
+            <div class="about-stat-label">Objective</div>
+            <div class="about-stat-value">Decide how many times to pump a balloon. More pumps = more money accrued, but a higher chance of burst and total loss for that round.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">What it measures</div>
+            <div class="about-stat-value">Risk-taking propensity. The adjusted BART score (average pumps on non-burst rounds) correlates with sensation seeking, impulsivity, and real-world risk behaviours.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Optimal strategy</div>
+            <div class="about-stat-value">Pump exactly <strong>16 times</strong> (= MAX ÷ 2) to maximise expected earnings. More or fewer pumps both reduce your expected payoff.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Payoff formula</div>
+            <div class="about-stat-value">E(n) = n × £0.05 × (32 − n) / 32 — an inverted U peaking at n = 16 (£0.40/round expected).</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Probability structure</div>
+            <div class="about-stat-value">Break point drawn from U{1, 32}. Conditional burst probability on pump n = 1 / (32 − n), increasing with every pump.</div>
+          </div>
+        </div>
+        <div>
+          <div class="chart-wrap">
+            <canvas id="payoff-chart"></canvas>
+          </div>
+          <p class="chart-caption">Expected earnings as a function of pumps · dots = your choices this session</p>
+        </div>
+      </div>
+      <p class="cite">Lejuez, C.W., Read, J.P., Kahler, C.W., Richards, J.B., Ramsey, S.E., Stuart, G.L., Strong, D.R., &amp; Brown, R.A. (2002). Evaluation of a Behavioral Measure of Risk Taking: The Balloon Analogue Risk Task (BART). <em>Journal of Experimental Psychology: Applied, 8</em>(2), 75–84. <a href="https://doi.org/10.1037/1076-898X.8.2.75" target="_blank" style="color:var(--accent)">https://doi.org/10.1037/1076-898X.8.2.75</a></p>
+    </div>
+
   </main>
 
   <script>
@@ -670,6 +754,15 @@
 
       document.getElementById('total-earned').textContent = fmt(totalEarned);
 
+      // Update payoff chart with player choices + send data
+      var playerPumps = roundResults.map(function(r) { return r.pumps; });
+      buildPayoffChart(playerPumps);
+      sendData({
+        rounds: roundResults,
+        total_earned: totalEarned,
+        adj_bart_score: adjScore
+      });
+
       var tbody = document.getElementById('round-results');
       roundResults.forEach(function(r) {
         var div = document.createElement('div');
@@ -700,7 +793,94 @@
       startRound();
     });
 
+    // ─── DATA COLLECTION ───────────────────────────────────────────────────────
+    var SESSION_ID    = Math.random().toString(36).substr(2, 9);
+    var DATA_ENDPOINT = ''; // ← paste your Google Apps Script URL here after setup
+
+    function sendData(payload) {
+      if (!DATA_ENDPOINT) return;
+      fetch(DATA_ENDPOINT, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({
+          game: 'BART',
+          session_id: SESSION_ID,
+          timestamp: new Date().toISOString(),
+          max_pumps: MAX_PUMPS,
+          earn_per_pump: EARN_PER_PUMP
+        }, payload))
+      }).catch(function() {});
+    }
+
+    // ─── PAYOFF CHART ──────────────────────────────────────────────────────────
+    var payoffChartInstance = null;
+
+    function buildPayoffChart(playerPumps) {
+      var labels = [], expected = [], playerDots = [];
+      for (var n = 0; n <= MAX_PUMPS; n++) {
+        labels.push(n);
+        expected.push(+(n * EARN_PER_PUMP * (MAX_PUMPS - n) / MAX_PUMPS).toFixed(4));
+        playerDots.push(null);
+      }
+      // Mark actual player choices (non-burst only, matching original paper)
+      if (playerPumps) {
+        playerPumps.forEach(function(p) {
+          if (p >= 0 && p <= MAX_PUMPS) playerDots[p] = expected[p];
+        });
+      }
+      var ctx = document.getElementById('payoff-chart').getContext('2d');
+      if (payoffChartInstance) payoffChartInstance.destroy();
+      payoffChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Expected earnings',
+              data: expected,
+              borderColor: '#1040A0',
+              backgroundColor: 'rgba(16,64,160,0.07)',
+              fill: true, tension: 0.4,
+              pointRadius: 0, borderWidth: 2
+            },
+            {
+              label: 'Your choices',
+              data: playerDots,
+              borderColor: 'transparent',
+              backgroundColor: '#C4882A',
+              pointRadius: 7, pointHoverRadius: 9,
+              showLine: false
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: function(items) { return items[0].parsed.x + ' pumps'; },
+                label: function(ctx) { return 'Expected: £' + ctx.parsed.y.toFixed(2); }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Pumps', font: { size: 10 } },
+              grid: { color: '#E0DED9' }, ticks: { maxTicksLimit: 9 }
+            },
+            y: {
+              title: { display: true, text: 'Expected (£)', font: { size: 10 } },
+              grid: { color: '#E0DED9' },
+              ticks: { callback: function(v) { return '£' + v.toFixed(2); } }
+            }
+          }
+        }
+      });
+    }
+
     // ─── START ─────────────────────────────────────────────────────────────────
+    buildPayoffChart(null); // draw chart immediately on load
     startRound();
   </script>
 </body>

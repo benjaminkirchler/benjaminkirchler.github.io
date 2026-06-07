@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -616,6 +617,50 @@
       text-align: center;
     }
 
+    /* ── ABOUT SECTION ── */
+    .about-task {
+      margin-top: 2rem;
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.48);
+    }
+    .about-task-title {
+      font-family: "Source Serif 4", serif;
+      font-size: 1.5rem; font-weight: 600;
+      letter-spacing: -0.01em; margin-bottom: 1.5rem;
+      padding-bottom: 1rem; border-bottom: 1px solid var(--rule);
+    }
+    .about-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem; align-items: start;
+    }
+    .about-stat {
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--rule);
+    }
+    .about-stat-label {
+      font-size: 0.6rem; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 0.3rem;
+    }
+    .about-stat-value {
+      font-family: "Source Serif 4", serif;
+      font-size: 0.95rem; color: var(--ink); line-height: 1.6;
+    }
+    .about-stat-value strong { color: var(--accent); }
+    .chart-wrap { position: relative; width: 100%; height: 200px; }
+    .chart-caption {
+      font-size: 0.65rem; color: var(--faint);
+      text-align: center; margin-top: 0.5rem; font-style: italic;
+    }
+    .cite {
+      margin-top: 1.5rem; padding-top: 1rem;
+      border-top: 1px solid var(--rule);
+      font-size: 0.72rem; color: var(--faint); font-style: italic;
+      line-height: 1.6;
+    }
+
     @media (max-width: 680px) {
       .topbar-link { font-size: 0; }
       .topbar-link::after { content: "← Website"; font-size: 0.72rem; }
@@ -776,6 +821,42 @@
 
       <button id="play-again" class="primary-button" type="button">Play again</button>
     </section>
+    <!-- ABOUT SECTION -->
+    <div class="about-task">
+      <h2 class="about-task-title">About this task</h2>
+      <div class="about-cols">
+        <div>
+          <div class="about-stat">
+            <div class="about-stat-label">Objective</div>
+            <div class="about-stat-value">Click boxes on a 10×10 grid to collect money. One box hides a bomb. Decide when to stop and collect — if you click the bomb, you earn nothing that round.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">What it measures</div>
+            <div class="about-stat-value">Risk preferences under uncertainty. The number of boxes opened measures willingness to take on increasing risk for higher potential payoffs.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Optimal strategy</div>
+            <div class="about-stat-value">Open exactly <strong>50 boxes</strong> to maximise expected earnings (£2.50/round on average). Opening more than 50 boxes reduces your expected payoff.</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Payoff formula</div>
+            <div class="about-stat-value">E(n) = n × £0.10 × (100 − n) / 100 — an inverted U peaking at n = 50 (£2.50/round expected).</div>
+          </div>
+          <div class="about-stat">
+            <div class="about-stat-label">Probability structure</div>
+            <div class="about-stat-value">1 bomb hidden uniformly at random in 100 boxes. Conditional bomb probability on click n = 1 / (101 − n), increasing with every click.</div>
+          </div>
+        </div>
+        <div>
+          <div class="chart-wrap">
+            <canvas id="payoff-chart"></canvas>
+          </div>
+          <p class="chart-caption">Expected earnings as a function of boxes opened · dots = your choices this session</p>
+        </div>
+      </div>
+      <p class="cite">Crosetto, P. &amp; Filippin, A. (2013). The "bomb" risk elicitation task. <em>Journal of Risk and Uncertainty, 47</em>, 31–65. Adapted for social reference points by Kirchler, B. &amp; Kirchler, E. (2024). Social Reference Points Shape Decisions under Uncertainty. <em>Working Paper.</em></p>
+    </div>
+
   </main>
 
   <script>
@@ -1074,6 +1155,18 @@
         });
 
         showScreen("#results-screen");
+
+        // Update payoff chart with player choices + send data
+        var playerBoxes = roundResults.map(function(r) { return r.selected; });
+        buildBretPayoffChart(playerBoxes);
+        sendBretData({
+          condition: condition,
+          payoff_round: payoffRound,
+          rounds: roundResults.map(function(r) {
+            return { round: r.round, boxes: r.selected, bombs_hit: r.bombsHit, earned: r.earned };
+          }),
+          total_earned: payoffResult ? payoffResult.earned : 0
+        });
       }
 
       $("#play-again").on("click", function() {
@@ -1081,6 +1174,93 @@
         beliefs = [];
         showScreen("#setup-screen");
       });
+
+      // ── PAYOFF CHART ──────────────────────────────────────────────────────────
+      var bretChartInstance = null;
+      function buildBretPayoffChart(playerBoxes) {
+        var BOXES = 100, REWARD = 0.10;
+        var labels = [], expected = [], playerDots = [];
+        for (var n = 0; n <= BOXES; n++) {
+          labels.push(n);
+          expected.push(+(n * REWARD * (BOXES - n) / BOXES).toFixed(4));
+          playerDots.push(null);
+        }
+        if (playerBoxes) {
+          playerBoxes.forEach(function(b) {
+            if (b >= 0 && b <= BOXES) playerDots[b] = expected[b];
+          });
+        }
+        var ctx = document.getElementById('payoff-chart').getContext('2d');
+        if (bretChartInstance) bretChartInstance.destroy();
+        bretChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Expected earnings',
+                data: expected,
+                borderColor: '#1040A0',
+                backgroundColor: 'rgba(16,64,160,0.07)',
+                fill: true, tension: 0.4,
+                pointRadius: 0, borderWidth: 2
+              },
+              {
+                label: 'Your choices',
+                data: playerDots,
+                borderColor: 'transparent',
+                backgroundColor: '#C4882A',
+                pointRadius: 7, pointHoverRadius: 9,
+                showLine: false
+              }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: function(i) { return i[0].parsed.x + ' boxes'; },
+                  label: function(c) { return 'Expected: £' + c.parsed.y.toFixed(2); }
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Boxes opened', font: { size: 10 } },
+                grid: { color: '#E0DED9' }, ticks: { maxTicksLimit: 11 }
+              },
+              y: {
+                title: { display: true, text: 'Expected (£)', font: { size: 10 } },
+                grid: { color: '#E0DED9' },
+                ticks: { callback: function(v) { return '£' + v.toFixed(2); } }
+              }
+            }
+          }
+        });
+      }
+
+      // ── DATA COLLECTION ───────────────────────────────────────────────────────
+      var BRET_SESSION  = Math.random().toString(36).substr(2, 9);
+      var DATA_ENDPOINT = ''; // ← paste your Google Apps Script URL here after setup
+
+      function sendBretData(payload) {
+        if (!DATA_ENDPOINT) return;
+        fetch(DATA_ENDPOINT, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.assign({
+            game: 'BRET',
+            session_id: BRET_SESSION,
+            timestamp: new Date().toISOString()
+          }, payload))
+        }).catch(function() {});
+      }
+
+      // Draw chart on page load
+      buildBretPayoffChart(null);
+
     });
   </script>
 </body>
