@@ -246,6 +246,42 @@
     }
 
     .belief-field span { color: var(--mid); }
+    .belief-field.auto {
+      border-color: var(--accent);
+      background: #EEF3FC;
+    }
+    .belief-field.auto input {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .outcome-illustration {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+    .outcome-card {
+      padding: 1rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+      text-align: center;
+    }
+    .outcome-icons {
+      min-height: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--danger);
+      font-size: 1.35rem;
+      letter-spacing: 0.2em;
+    }
+    .outcome-card strong {
+      display: block;
+      font-family: "Source Serif 4", serif;
+      font-size: 1.1rem;
+    }
+    .outcome-card span {
+      color: var(--mid);
+      font-size: 0.72rem;
+    }
 
     .belief-total {
       margin-bottom: 1.5rem;
@@ -284,6 +320,36 @@
 
     .round-earnings { text-align: right; }
     .round-earnings strong { color: var(--accent); }
+    .account-panel {
+      display: grid;
+      grid-template-columns: 1.1fr repeat(3, 1fr);
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+    }
+    .account-item {
+      padding: 0.8rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
+    }
+    .account-item span {
+      display: block;
+      margin-bottom: 0.3rem;
+      color: var(--mid);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .account-item strong {
+      color: var(--ink);
+      font-family: "Source Serif 4", serif;
+      font-size: 1rem;
+    }
+    .account-item.bank {
+      border-color: var(--accent);
+      background: #EEF3FC;
+    }
+    .account-item.bank strong { color: var(--accent); }
 
     .condition-note {
       margin-bottom: 1.2rem;
@@ -458,28 +524,79 @@
 
     .round-results {
       display: grid;
-      gap: 0.75rem;
+      gap: 1.25rem;
       margin-bottom: 2rem;
     }
 
     .round-result {
-      display: grid;
-      grid-template-columns: 1fr repeat(4, auto);
-      gap: 1rem;
-      align-items: center;
-      padding: 0.9rem 0;
-      border-bottom: 1px solid var(--rule);
+      padding: 1.25rem;
+      border: 1px solid var(--rule);
+      background: var(--paper);
       font-size: 0.82rem;
     }
-
-    .round-result strong {
-      font-family: "Source Serif 4", serif;
-      font-size: 1.05rem;
+    .round-result-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
-
-    .round-result span {
+    .round-result-header strong {
+      font-family: "Source Serif 4", serif;
+      font-size: 1.25rem;
+    }
+    .round-result-header span {
       color: var(--mid);
       white-space: nowrap;
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 18px);
+      gap: 2px;
+      width: max-content;
+      margin: 0 auto 1rem;
+    }
+    .result-box {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #aaa;
+      background: #E6E4DF;
+    }
+    .result-box.selected { border: 2px solid var(--accent); background: #EEF3FC; }
+    .result-box.bomb { border-color: var(--danger); background: var(--danger); }
+    .result-box.selected-bomb {
+      border: 3px solid var(--ink);
+      background: var(--danger);
+    }
+    .result-legend {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      color: var(--mid);
+      font-size: 0.68rem;
+    }
+    .legend-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 0.25rem;
+      border: 1px solid #aaa;
+      vertical-align: -2px;
+    }
+    .legend-swatch.selected { border: 2px solid var(--accent); background: #EEF3FC; }
+    .legend-swatch.bomb { border-color: var(--danger); background: var(--danger); }
+    .legend-swatch.selected-bomb { border: 3px solid var(--ink); background: var(--danger); }
+    .round-result-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .round-result-stats span {
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--rule);
+      color: var(--mid);
+      text-align: center;
     }
 
     @media (max-width: 680px) {
@@ -487,13 +604,13 @@
       .topbar-link::after { content: "← Website"; font-size: 0.72rem; }
       main { padding-top: 7rem; }
       .card { margin-inline: calc(var(--col) * -0.35); }
-      .condition-grid, .belief-grid { grid-template-columns: 1fr; }
+      .condition-grid, .belief-grid, .outcome-illustration, .account-panel { grid-template-columns: 1fr; }
       #grid { grid-template-columns: repeat(10, 27px); gap: 3px; }
       .box { width: 27px; height: 27px; }
       .box.selected::after { line-height: 22px; }
       .box.coin::after { width: 19px; height: 19px; margin: 3px auto; line-height: 19px; }
       .box.bomb::after { line-height: 23px; }
-      .round-result { grid-template-columns: 1fr; gap: 0.3rem; }
+      .round-result-stats { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -531,7 +648,7 @@
         <button class="condition-button" type="button" data-condition="ambiguity">
           <span>Unknown probability</span>
           <h3>Ambiguity</h3>
-          <p>The grid may contain 0, 1, or 2 bombs. You are not told how likely each possibility is.</p>
+          <p>Each round may contain 0, 1, or 2 bombs. The outcome is drawn anew, and you are not told how likely each possibility is.</p>
         </button>
       </div>
     </section>
@@ -557,32 +674,37 @@
     </section>
 
     <section id="belief-screen" class="screen card">
-      <p class="eyebrow">Before you play</p>
-      <h2>What do you believe?</h2>
+      <p id="belief-eyebrow" class="eyebrow">Before round 1</p>
+      <h2>How likely is each outcome?</h2>
       <p class="screen-intro">
-        Allocate exactly 100 probability points across the three possible outcomes.
-        More points mean you believe that outcome is more likely.
+        Enter your estimated probabilities for 0 and 1 bomb. The probability for
+        2 bombs is calculated automatically so that the total always equals 100%.
       </p>
+
+      <div class="outcome-illustration" aria-label="Three possible ambiguity outcomes">
+        <div class="outcome-card"><div class="outcome-icons">○</div><strong>No bomb</strong><span>The field contains 0 bombs</span></div>
+        <div class="outcome-card"><div class="outcome-icons">✹</div><strong>One bomb</strong><span>The field contains 1 bomb</span></div>
+        <div class="outcome-card"><div class="outcome-icons">✹ ✹</div><strong>Two bombs</strong><span>The field contains 2 bombs</span></div>
+      </div>
 
       <div class="belief-grid">
         <div class="belief-field">
           <label for="belief-0">0 bombs</label>
-          <div class="belief-input-wrap"><input id="belief-0" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
+          <div class="belief-input-wrap"><input id="belief-0" type="number" min="0" max="100" placeholder="0"><span>%</span></div>
         </div>
         <div class="belief-field">
           <label for="belief-1">1 bomb</label>
-          <div class="belief-input-wrap"><input id="belief-1" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
+          <div class="belief-input-wrap"><input id="belief-1" type="number" min="0" max="100" placeholder="0"><span>%</span></div>
         </div>
-        <div class="belief-field">
-          <label for="belief-2">2 bombs</label>
-          <div class="belief-input-wrap"><input id="belief-2" type="number" min="0" max="100" placeholder="0"><span>points</span></div>
+        <div class="belief-field auto">
+          <label for="belief-2">2 bombs · automatic</label>
+          <div class="belief-input-wrap"><input id="belief-2" type="number" value="100" readonly><span>%</span></div>
         </div>
       </div>
 
-      <p id="belief-total" class="belief-total invalid">Total: <strong>0</strong> / 100 points</p>
+      <p id="belief-total" class="belief-total">Total: <strong>100%</strong></p>
       <div class="actions">
-        <button id="start-ambiguity" class="primary-button" type="button" disabled>Continue</button>
-        <button class="secondary-button back-to-setup" type="button">Back</button>
+        <button id="start-ambiguity" class="primary-button" type="button">Continue to round</button>
       </div>
     </section>
 
@@ -600,6 +722,13 @@
 
       <p id="condition-note" class="condition-note"></p>
 
+      <div class="account-panel" aria-label="Potential earnings account">
+        <div class="account-item bank"><span>Bank account</span><strong>Outcomes pending</strong></div>
+        <div class="account-item"><span>Round 1 potential</span><strong id="ledger-1">—</strong></div>
+        <div class="account-item"><span>Round 2 potential</span><strong id="ledger-2">—</strong></div>
+        <div class="account-item"><span>Round 3 potential</span><strong id="ledger-3">—</strong></div>
+      </div>
+
       <div class="grid-wrap">
         <div id="grid" role="grid" aria-label="Bomb risk elicitation grid"></div>
       </div>
@@ -614,15 +743,17 @@
     <section id="results-screen" class="screen card" aria-live="polite">
       <p class="eyebrow">Results</p>
       <h2>Game complete</h2>
-      <p class="screen-intro">Your choices across the three demo rounds are summarised below.</p>
+      <p class="screen-intro">
+        Your bank account is now settled. Each reconstructed field shows the boxes
+        you selected and where the bombs were hidden.
+      </p>
 
       <div class="total-earned">
-        <span>Total earned</span>
+        <span>Final bank account</span>
         <strong id="total-earned">0 tokens · €0.00</strong>
       </div>
 
       <p id="result-condition" class="result-meta"></p>
-      <p id="result-beliefs" class="result-meta"></p>
       <div id="round-results" class="round-results"></div>
 
       <button id="play-again" class="primary-button" type="button">Play again</button>
@@ -634,7 +765,7 @@
       var roundsPlayed = 3;
       var rewardPerBox = 0.10;
       var condition = null;
-      var beliefs = null;
+      var beliefs = [];
       var round = 0;
       var total = 0;
       var selectedIndexes = new Set();
@@ -701,13 +832,14 @@
         $("#round-number").text("Round " + round + " of " + roundsPlayed);
         $("#potential-earnings").text(formatTokens(selectedIndexes.size));
         $("#collect").prop("disabled", selectedIndexes.size === 0);
+        $("#ledger-" + round).text(selectedIndexes.size === 0 ? "—" : formatTokens(selectedIndexes.size) + " if safe");
       }
 
       function updateConditionNote() {
         if (condition === "risk") {
           $("#condition-note").html("<strong>Risk condition:</strong> exactly one bomb is hidden among the 100 boxes.");
         } else {
-          $("#condition-note").html("<strong>Ambiguity condition:</strong> the grid contains 0, 1, or 2 bombs; their likelihoods are not disclosed.");
+          $("#condition-note").html("<strong>Ambiguity condition:</strong> this round contains 0, 1, or 2 bombs; the likelihoods are not disclosed.");
         }
       }
 
@@ -715,8 +847,13 @@
         round = 0;
         total = 0;
         roundResults = [];
-        showScreen("#game-screen");
-        startRound();
+        beliefs = [];
+        $("#ledger-1, #ledger-2, #ledger-3").text("—");
+        if (condition === "ambiguity") {
+          showBeliefQuestion();
+        } else {
+          startRound();
+        }
       }
 
       function startRound() {
@@ -730,9 +867,18 @@
         $("#collect").prop("disabled", true).text("Collect money");
       }
 
+      function showBeliefQuestion() {
+        $("#belief-eyebrow").text("Before round " + (round + 1));
+        $("#belief-0, #belief-1").val("");
+        $("#belief-2").val(100);
+        $("#belief-total").removeClass("invalid").html("Enter percentages for 0 and 1 bomb; the final field updates automatically.");
+        $("#start-ambiguity").prop("disabled", true);
+        showScreen("#belief-screen");
+      }
+
       $(".condition-button").on("click", function() {
         condition = $(this).attr("data-condition");
-        beliefs = null;
+        beliefs = [];
         if (condition === "risk") {
           $("#condition-instruction").html(
             "In the <strong>risk condition</strong>, exactly <strong>1 bomb</strong> is hidden randomly among the 100 boxes. " +
@@ -740,11 +886,11 @@
           );
         } else {
           $("#condition-instruction").html(
-            "In the <strong>ambiguity condition</strong>, between <strong>0 and 2 bombs</strong> are hidden randomly among the 100 boxes. " +
-            "You do not know how likely it is that the field contains 0, 1, or 2 bombs."
+            "In the <strong>ambiguity condition</strong>, between <strong>0 and 2 bombs</strong> are hidden randomly among the 100 boxes in each round. " +
+            "The number of bombs is drawn anew before every round. You do not know how likely it is that the field contains 0, 1, or 2 bombs."
           );
         }
-        showScreen(condition === "ambiguity" ? "#belief-screen" : "#instruction-screen");
+        showScreen("#instruction-screen");
       });
 
       $(".back-to-setup").on("click", function() {
@@ -755,35 +901,41 @@
         startGame();
       });
 
-      $(".belief-field input").on("input", function() {
-        var beliefValues = ["#belief-0", "#belief-1", "#belief-2"].map(function(id) {
-          return Number($(id).val());
-        });
-        var totalBelief = beliefValues.reduce(function(sum, value) {
-          return sum + (value || 0);
-        }, 0);
-        var validBeliefs = beliefValues.every(function(value) {
-          return Number.isFinite(value) && value >= 0 && value <= 100;
-        }) && totalBelief === 100;
+      $("#belief-0, #belief-1").on("input", function() {
+        var zeroRaw = $("#belief-0").val();
+        var oneRaw = $("#belief-1").val();
+        var zero = Number(zeroRaw) || 0;
+        var one = Number(oneRaw) || 0;
+        var two = 100 - zero - one;
+        var complete = zeroRaw !== "" && oneRaw !== "";
+        var validBeliefs = complete && zero >= 0 && zero <= 100 && one >= 0 && one <= 100 && two >= 0 && two <= 100;
 
+        $("#belief-2").val(two);
         $("#belief-total").toggleClass("invalid", !validBeliefs)
-          .html("Total: <strong>" + totalBelief + "</strong> / 100 points");
+          .html(
+            validBeliefs
+              ? "Total: <strong>100%</strong>"
+              : complete
+                ? "The first two percentages cannot add up to more than 100%."
+                : "Enter percentages for 0 and 1 bomb; the final field updates automatically."
+          );
         $("#start-ambiguity").prop("disabled", !validBeliefs);
       });
 
       $("#start-ambiguity").on("click", function() {
-        beliefs = {
+        var roundBelief = {
           zero: Number($("#belief-0").val()),
           one: Number($("#belief-1").val()),
           two: Number($("#belief-2").val())
         };
         if (
-          beliefs.zero >= 0 && beliefs.zero <= 100 &&
-          beliefs.one >= 0 && beliefs.one <= 100 &&
-          beliefs.two >= 0 && beliefs.two <= 100 &&
-          beliefs.zero + beliefs.one + beliefs.two === 100
+          roundBelief.zero >= 0 && roundBelief.zero <= 100 &&
+          roundBelief.one >= 0 && roundBelief.one <= 100 &&
+          roundBelief.two >= 0 && roundBelief.two <= 100 &&
+          roundBelief.zero + roundBelief.one + roundBelief.two === 100
         ) {
-          showScreen("#instruction-screen");
+          beliefs.push(roundBelief);
+          startRound();
         }
       });
 
@@ -820,16 +972,20 @@
         roundResults.push({
           round: round,
           selected: selectedIndexes.size,
+          selectedIndexes: Array.from(selectedIndexes),
           bombsPresent: bombIndexes.size,
+          bombIndexes: Array.from(bombIndexes),
           bombsHit: selectedBombs,
-          earned: earned
+          earned: earned,
+          belief: condition === "ambiguity" ? beliefs[round - 1] : null
         });
 
         $(".box").prop("disabled", true);
         $("#collect").prop("disabled", true);
+        $("#ledger-" + round).text(formatTokens(selectedIndexes.size) + " pending");
         if (round < roundsPlayed) {
           $("#status").html("<strong>Choice recorded.</strong> Starting the next round without revealing the outcome...");
-          window.setTimeout(startRound, 800);
+          window.setTimeout(condition === "ambiguity" ? showBeliefQuestion : startRound, 800);
         } else {
           $("#status").html("<strong>Choice recorded.</strong> Preparing your results...");
           window.setTimeout(showResults, 800);
@@ -843,25 +999,49 @@
           (condition === "risk" ? "Risk — exactly one known bomb." : "Ambiguity — 0, 1, or 2 possible bombs.")
         );
 
-        if (beliefs) {
-          $("#result-beliefs").html(
-            "<strong>Your prior beliefs:</strong> 0 bombs: " + beliefs.zero +
-            " points · 1 bomb: " + beliefs.one +
-            " points · 2 bombs: " + beliefs.two + " points."
-          ).show();
-        } else {
-          $("#result-beliefs").hide();
-        }
-
         $("#round-results").empty();
         roundResults.forEach(function(result) {
-          $("<div>", { class: "round-result" })
+          var card = $("<article>", { class: "round-result" });
+          var outcome = result.bombsHit > 0 ? "Bomb selected · round lost" : "No bomb selected · earnings kept";
+          var header = $("<div>", { class: "round-result-header" })
             .append($("<strong>").text("Round " + result.round))
-            .append($("<span>").text(result.selected + " selected"))
-            .append($("<span>").text(result.bombsPresent + " hidden bomb" + (result.bombsPresent === 1 ? "" : "s")))
-            .append($("<span>").text(result.bombsHit + " hit"))
-            .append($("<span>").text(formatTokens(Math.round(result.earned / rewardPerBox)) + " earned"))
-            .appendTo("#round-results");
+            .append($("<span>").text(outcome));
+          var grid = $("<div>", { class: "result-grid", "aria-label": "Reconstructed grid for round " + result.round });
+
+          for (var index = 0; index < 100; index++) {
+            var selected = result.selectedIndexes.includes(index);
+            var bomb = result.bombIndexes.includes(index);
+            var boxClass = "result-box";
+            if (selected && bomb) {
+              boxClass += " selected-bomb";
+            } else if (bomb) {
+              boxClass += " bomb";
+            } else if (selected) {
+              boxClass += " selected";
+            }
+            $("<span>", { class: boxClass }).appendTo(grid);
+          }
+
+          var legend = $("<div>", { class: "result-legend" })
+            .append('<span><i class="legend-swatch selected"></i>Selected safe box</span>')
+            .append('<span><i class="legend-swatch bomb"></i>Bomb</span>')
+            .append('<span><i class="legend-swatch selected-bomb"></i>Selected bomb</span>');
+          var stats = $("<div>", { class: "round-result-stats" })
+            .append($("<span>").text(result.selected + " boxes selected"))
+            .append($("<span>").text(result.bombsPresent + " bomb" + (result.bombsPresent === 1 ? "" : "s") + " hidden"))
+            .append($("<span>").text(result.bombsHit + " bomb" + (result.bombsHit === 1 ? "" : "s") + " selected"))
+            .append($("<span>").text(formatTokens(Math.round(result.earned / rewardPerBox)) + " earned"));
+
+          card.append(header, grid, legend, stats);
+          if (result.belief) {
+            card.append(
+              $("<p>", { class: "result-meta" }).html(
+                "<strong>Your estimate before this round:</strong> 0 bombs " + result.belief.zero +
+                "% · 1 bomb " + result.belief.one + "% · 2 bombs " + result.belief.two + "%"
+              )
+            );
+          }
+          card.appendTo("#round-results");
         });
 
         showScreen("#results-screen");
@@ -869,10 +1049,7 @@
 
       $("#play-again").on("click", function() {
         condition = null;
-        beliefs = null;
-        $(".belief-field input").val("");
-        $("#belief-total").addClass("invalid").html("Total: <strong>0</strong> / 100 points");
-        $("#start-ambiguity").prop("disabled", true);
+        beliefs = [];
         showScreen("#setup-screen");
       });
     });
