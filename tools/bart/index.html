@@ -754,14 +754,9 @@
 
       document.getElementById('total-earned').textContent = fmt(totalEarned);
 
-      // Update payoff chart with player choices + send data
+      // Update payoff chart with player choices
       var playerPumps = roundResults.map(function(r) { return r.pumps; });
       buildPayoffChart(playerPumps);
-      sendData({
-        rounds: roundResults,
-        total_earned: totalEarned,
-        adj_bart_score: adjScore
-      });
 
       var tbody = document.getElementById('round-results');
       roundResults.forEach(function(r) {
@@ -792,25 +787,6 @@
       document.getElementById('game').style.display    = 'block';
       startRound();
     });
-
-    // ─── DATA COLLECTION ───────────────────────────────────────────────────────
-    var SESSION_ID    = Math.random().toString(36).substr(2, 9);
-    var DATA_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-ZQ5XFnPzAcIgJ0ppTLuTJlt8g7Bc2go_6o4CQhFs4YvbbFxF6wY-kPWGpRHneE9n/exec';
-
-    function sendData(payload) {
-      if (!DATA_ENDPOINT) return;
-      fetch(DATA_ENDPOINT, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({
-          game: 'BART',
-          session_id: SESSION_ID,
-          timestamp: new Date().toISOString(),
-          max_pumps: MAX_PUMPS,
-          earn_per_pump: EARN_PER_PUMP
-        }, payload))
-      }).catch(function() {});
-    }
 
     // ─── PAYOFF CHART ──────────────────────────────────────────────────────────
     var payoffChartInstance = null;

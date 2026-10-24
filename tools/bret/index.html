@@ -1156,17 +1156,9 @@
 
         showScreen("#results-screen");
 
-        // Update payoff chart with player choices + send data
+        // Update payoff chart with player choices
         var playerBoxes = roundResults.map(function(r) { return r.selected; });
         buildBretPayoffChart(playerBoxes);
-        sendBretData({
-          condition: condition,
-          payoff_round: payoffRound,
-          rounds: roundResults.map(function(r) {
-            return { round: r.round, boxes: r.selected, bombs_hit: r.bombsHit, earned: r.earned };
-          }),
-          total_earned: payoffResult ? payoffResult.earned : 0
-        });
       }
 
       $("#play-again").on("click", function() {
@@ -1239,23 +1231,6 @@
             }
           }
         });
-      }
-
-      // ── DATA COLLECTION ───────────────────────────────────────────────────────
-      var BRET_SESSION  = Math.random().toString(36).substr(2, 9);
-      var DATA_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-ZQ5XFnPzAcIgJ0ppTLuTJlt8g7Bc2go_6o4CQhFs4YvbbFxF6wY-kPWGpRHneE9n/exec';
-
-      function sendBretData(payload) {
-        if (!DATA_ENDPOINT) return;
-        fetch(DATA_ENDPOINT, {
-          method: 'POST', mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(Object.assign({
-            game: 'BRET',
-            session_id: BRET_SESSION,
-            timestamp: new Date().toISOString()
-          }, payload))
-        }).catch(function() {});
       }
 
       // Draw chart on page load

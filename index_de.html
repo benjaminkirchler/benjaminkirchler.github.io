@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Benjamin Kirchler — Forscher</title>
+  <meta name="description" content="Benjamin Kirchler — Doktorand an der WU Wien und wissenschaftlicher Mitarbeiter am Energieinstitut an der JKU Linz. Feldexperimente, Verhaltensökonomie der Energie und kausale Inferenz für die Energiepolitik." />
+  <link rel="canonical" href="https://benjaminkirchler.github.io/index_de.html" />
+  <link rel="alternate" hreflang="en" href="https://benjaminkirchler.github.io/" />
+  <link rel="alternate" hreflang="de" href="https://benjaminkirchler.github.io/index_de.html" />
+  <link rel="alternate" hreflang="x-default" href="https://benjaminkirchler.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Benjamin Kirchler" />
+  <meta property="og:description" content="Benjamin Kirchler — Doktorand an der WU Wien und wissenschaftlicher Mitarbeiter am Energieinstitut an der JKU Linz. Feldexperimente, Verhaltensökonomie der Energie und kausale Inferenz für die Energiepolitik." />
+  <meta property="og:url" content="https://benjaminkirchler.github.io/index_de.html" />
+  <meta property="og:image" content="https://benjaminkirchler.github.io/benjamin-kirchler.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%231040A0'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' font-weight='700' text-anchor='middle' fill='white'%3EBK%3C/text%3E%3C/svg%3E" />
+  <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,8 +28,8 @@
       /* Palette */
       --paper:  #F8F7F4;
       --ink:    #1A1917;
-      --mid:    #6B6963;
-      --faint:  #A8A49F;
+      --mid:    #5A5852;
+      --faint:  #716D66;
       --rule:   #E0DED9;
       --subtle: #EFEDE8;
       --accent: #1040A0;
@@ -97,6 +110,7 @@
     .nav-links a:hover { color: var(--accent); }
 
     /* ── LANGUAGE SWITCH ── */
+    .nav-right { display: flex; align-items: center; }
     .lang-switch {
       display: flex; align-items: center; gap: 0.3rem;
       margin-left: var(--s3); padding-left: var(--s3);
@@ -111,6 +125,17 @@
     .lang-switch a:hover { color: var(--accent); }
     .lang-switch a.active { color: var(--ink); }
     .lang-switch span { font-size: var(--t-2); color: var(--faint); }
+
+    .nav-toggle {
+      display: none; background: none; border: 1px solid var(--rule);
+      width: 40px; height: 36px; margin-left: var(--s2); cursor: pointer;
+      flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    }
+    .nav-toggle span { display: block; width: 18px; height: 2px; background: var(--ink); transition: transform var(--trans), opacity var(--trans); }
+    nav.open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    nav.open .nav-toggle span:nth-child(2) { opacity: 0; }
+    nav.open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-toggle:focus-visible, nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* ── HERO ── */
     #hero {
@@ -163,21 +188,6 @@
       opacity: 0; animation: fadeUp 0.7s 0.3s ease forwards;
     }
     .hero-meta strong { color: var(--ink); font-weight: 600; }
-    .hero-cta-row {
-      margin-top: var(--s4);
-      opacity: 0; animation: fadeUp 0.7s 0.38s ease forwards;
-    }
-    .hero-cta {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-size: var(--t-1); font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--ink);
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 0.1rem;
-      transition: color var(--trans), gap var(--trans);
-    }
-    .hero-cta:hover { color: var(--accent); gap: 0.8rem; }
-
     /* ── SECTIONS ── */
     section { padding: var(--s8) var(--col); }
     section.alt { background: var(--subtle); }
@@ -317,7 +327,7 @@
     .project-item:hover .project-name { color: var(--accent); }
     .project-num {
       font-size: var(--t-2); font-weight: 500;
-      letter-spacing: 0.06em; color: var(--rule);
+      letter-spacing: 0.06em; color: var(--faint);
       padding-top: 0.3rem;
     }
     .project-body { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -390,7 +400,7 @@
 
     /* ── CV ── */
     #cv { background: var(--dark) !important; }
-    #cv .section-eyebrow { color: var(--faint); }
+    #cv .section-eyebrow { color: #B5B1AA; }
     #cv .section-heading { color: #fff; }
     .cv-inner {
       display: grid;
@@ -401,15 +411,15 @@
     .cv-text p {
       font-family: 'Source Serif 4', serif;
       font-size: var(--t0); line-height: 1.82;
-      color: rgba(255,255,255,0.38); max-width: 440px;
+      color: rgba(255,255,255,0.72); max-width: 440px;
     }
     .btn-cv {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.9rem 1.8rem;
-      background: transparent; color: rgba(255,255,255,0.65);
+      background: transparent; color: rgba(255,255,255,0.88);
       font-size: var(--t-2); font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase;
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.4);
       transition: border-color var(--trans), background var(--trans), color var(--trans);
       white-space: nowrap;
     }
@@ -433,6 +443,11 @@
       color: var(--faint); min-width: 56px;
     }
     .contact-value { color: var(--ink); font-weight: 500; }
+    .phone-reveal {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-weight: 500; color: var(--accent);
+      text-decoration: underline; text-underline-offset: 3px;
+    }
     .btn-email {
       display: inline-flex; align-items: center; gap: 0.5rem;
       padding: 0.9rem 2rem;
@@ -526,7 +541,14 @@
     @media (max-width: 640px) {
       :root { --col: 5vw; }
       nav { padding: 0 5vw; }
-      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-links {
+        display: none; position: absolute; top: 52px; left: 0; right: 0;
+        flex-direction: column; gap: 0; padding: var(--s1) 5vw var(--s2);
+        background: var(--paper); border-bottom: 1px solid var(--rule);
+      }
+      nav.open .nav-links { display: flex; }
+      .nav-links a { display: block; padding: 0.8rem 0; }
       section { padding: var(--s7) var(--col); }
       .project-item { grid-template-columns: 1fr; gap: var(--s1); }
       .project-num { display: none; }
@@ -542,7 +564,7 @@
 
   <nav>
     <span class="nav-logo">Benjamin Kirchler</span>
-    <ul class="nav-links">
+    <ul class="nav-links" id="nav-links">
       <li><a href="#about">Über mich</a></li>
       <li><a href="#publications">Publikationen</a></li>
       <li><a href="#projects">Projekte</a></li>
@@ -551,10 +573,13 @@
       <li><a href="#cv">Lebenslauf</a></li>
       <li><a href="#contact">Kontakt</a></li>
     </ul>
-    <div class="lang-switch">
-      <a href="index.html">EN</a>
-      <span>·</span>
-      <a href="index_de.html" class="active">DE</a>
+    <div class="nav-right">
+      <div class="lang-switch">
+        <a href="index.html">EN</a>
+        <span>·</span>
+        <a href="index_de.html" class="active">DE</a>
+      </div>
+      <button class="nav-toggle" type="button" aria-label="Menü" aria-expanded="false" aria-controls="nav-links"><span></span><span></span><span></span></button>
     </div>
   </nav>
 
@@ -612,7 +637,7 @@
             <span class="stat-label">Publikationen</span>
           </div>
           <div class="stat">
-            <span class="stat-num">76+</span>
+            <span class="stat-num" id="stat-cites" title="Quelle: OpenAlex (live)">76+</span>
             <span class="stat-label">Zitierungen</span>
           </div>
           <div class="stat">
@@ -753,7 +778,7 @@
           </div>
           <p class="project-full-name">Widerstand gegen Energie- und Klimapolitik verstehen</p>
           <p class="project-desc">Das Projekt untersucht auf Mikro-, Meso- und Makroebene, welche Akteure, Formen und Themen des Widerstands die Umsetzung von Klimapolitik beeinflussen, und entwickelt Empfehlungen für eine sozial sensiblere Energiewende.</p>
-          <a href="https://energieinstitut-linz.at/en/project/conceptualizing-and-understanding-resistance-against-energy-policy-and-technology/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://energieinstitut-linz.at/en/project/conceptualizing-and-understanding-resistance-against-energy-policy-and-technology/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -765,8 +790,8 @@
             <span class="project-period">2023–2026</span>
           </div>
           <p class="project-full-name">Interaktive Netzoptimierung und Netztarife</p>
-          <p class="project-desc">Das Projekt testet lastabhängige Netztarife unter realen Betriebsbedingungen, um aktivierbare Flexibilitätspotenziale bei Haushaltskunden zu ermitteln und evidenzbasierte Lösungen für zukunftsfähige Netztarifstrukturen in Österreich zu entwickeln.</p>
-          <a href="https://energieinstitut-linz.at/en/project/interaktive-netzoptimierung-und-netztarife/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <p class="project-desc">Das Projekt testet lastabhängige Netztarife mit mehr als 1.500 Haushalten in drei Demonstrationsgebieten und wertet dabei mehrere zehn Millionen 15-Minuten-Beobachtungen aus.</p>
+          <a href="https://energieinstitut-linz.at/en/project/interaktive-netzoptimierung-und-netztarife/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -779,7 +804,7 @@
           </div>
           <p class="project-full-name">Alternative nachhaltige Zukunftsmodelle</p>
           <p class="project-desc">MultiFutures erweitert systematisch den Handlungsspielraum für nachhaltige Politik, indem alternative ökonomische Paradigmen zur Entwicklung von Transformationsszenarien analysiert werden, die über BIP-Indikatoren hinausgehen.</p>
-          <a href="https://multifutures.eu/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://multifutures.eu/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -792,7 +817,7 @@
           </div>
           <p class="project-full-name">Lastvorhersagen mit KI-Prognosemodellen</p>
           <p class="project-desc">Das Projekt entwickelt KI-basierte Prognosemodelle zur Vorhersage von Stromlasten, um Prognosefehler zu reduzieren, Netzinterventionen zu vermeiden und die Integration erneuerbarer Energien zu verbessern.</p>
-          <a href="https://energieinstitut-linz.at/en/project/prediction-and-optimization-of-power-loads-using-ai-forecasting-models-for-costand-supply-efficient-power-grids/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://energieinstitut-linz.at/en/project/prediction-and-optimization-of-power-loads-using-ai-forecasting-models-for-costand-supply-efficient-power-grids/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -805,7 +830,7 @@
           </div>
           <p class="project-full-name">Für eine gerechte Energiewende</p>
           <p class="project-desc">Das Ziel besteht darin, die Energiewende und ihre politischen Instrumente (CO₂-Abgabe, Klimabonus) aus einer verteilungspolitischen Perspektive zu bewerten und gerechtere Politikvorschläge zu entwickeln.</p>
-          <a href="https://adjust-project.at/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://adjust-project.at/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -818,7 +843,7 @@
           </div>
           <p class="project-full-name">Aufbau einer grünen Wasserstoffwirtschaft in Österreich</p>
           <p class="project-desc">Das Projekt baut in Österreichs Industriekernregionen eine umfassende Wasserstoffwirtschaft auf und integriert grünen Wasserstoff in die Sektoren Stahl, Chemie, Zement, Energie und Mobilität.</p>
-          <a href="https://www.hi2valley.com/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://www.hi2valley.com/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -831,7 +856,7 @@
           </div>
           <p class="project-full-name">Resiliente Netze durch Energiegemeinschaften als systemdienliche Partner</p>
           <p class="project-desc">Das Projekt entwickelt skalierbare Lösungen – Tarifanpassungen, dynamische Preisgestaltung, gemeinsame Speicherung und digitale Kommunikation in Echtzeit –, um Energiegemeinschaften als systemdienliche Partner in das Stromnetz zu integrieren.</p>
-          <a href="https://energieinstitut-linz.at/project/resiliente-netze-durch-energiegemeinschaften-als-systemdienliche-partner/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://energieinstitut-linz.at/project/resiliente-netze-durch-energiegemeinschaften-als-systemdienliche-partner/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -844,7 +869,7 @@
           </div>
           <p class="project-full-name">Die Auswirkungen von Klimaanpassungsmaßnahmen auf das Wohlbefinden in Österreich</p>
           <p class="project-desc">Das Projekt untersucht, wie Klimaanpassungsmaßnahmen in Österreich die Lebensqualität beeinflussen, und entwickelt Handlungsempfehlungen für eine sozial gerechte Klimaanpassungspolitik.</p>
-          <a href="https://www.actwell-project.com/" target="_blank" class="project-link">Zum Projekt ↗</a>
+          <a href="https://www.actwell-project.com/" target="_blank" rel="noopener noreferrer" class="project-link">Zum Projekt ↗</a>
         </div>
       </article>
 
@@ -879,13 +904,13 @@
         <span class="tool-link">Aufgabe ausprobieren ↗</span>
       </a>
 
-      <div class="tool-card">
+      <a href="tools/bart/" class="tool-card tool-card-link" aria-label="Balloon Analogue Risk Task ausprobieren">
         <span class="tool-tag">Risikopräferenzen</span>
         <p class="tool-name">Balloon Analogue Risk Task</p>
         <p class="tool-desc">Pumpen Sie einen Ballon auf, um Geld zu verdienen – platzt er, verlieren Sie die Runde. Ein klassisches sequenzielles Risikomaß mit dynamischem Feedback.</p>
         <p class="tool-citation">Lejuez et al. (2002)</p>
-        <a href="tools/bart/" class="tool-link">Aufgabe ausprobieren ↗</a>
-      </div>
+        <span class="tool-link">Aufgabe ausprobieren ↗</span>
+      </a>
 
       <a href="tools/dictator/" class="tool-card tool-card-link" aria-label="Diktatorspiel ausprobieren">
         <span class="tool-tag">Soziale Präferenzen</span>
@@ -914,7 +939,7 @@
     </div>
     <div class="profiles-list reveal">
 
-      <a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank" class="profile-row">
+      <a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank" rel="noopener noreferrer" class="profile-row">
         <span class="profile-type">Profil</span>
         <div>
           <p class="profile-name-text">Google Scholar</p>
@@ -923,16 +948,34 @@
         <span class="profile-arrow">↗</span>
       </a>
 
-      <a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank" class="profile-row">
+      <a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank" rel="noopener noreferrer" class="profile-row">
         <span class="profile-type">Profil</span>
         <div>
           <p class="profile-name-text">ResearchGate</p>
-          <p class="profile-meta">15 Publikationen · 76 Zitierungen</p>
+          <p class="profile-meta">Ausgewählte Publikationen und Volltexte</p>
         </div>
         <span class="profile-arrow">↗</span>
       </a>
 
-      <a href="https://orcid.org/0000-0003-2283-6389" target="_blank" class="profile-row">
+      <a href="https://github.com/benjaminkirchler" target="_blank" rel="noopener noreferrer" class="profile-row">
+        <span class="profile-type">Profil</span>
+        <div>
+          <p class="profile-name-text">GitHub</p>
+          <p class="profile-meta">Code, Tools und reproduzierbare Forschung</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://www.linkedin.com/in/benjamin-kirchler-036922196/" target="_blank" rel="noopener noreferrer" class="profile-row">
+        <span class="profile-type">Profil</span>
+        <div>
+          <p class="profile-name-text">LinkedIn</p>
+          <p class="profile-meta">Berufliches Profil</p>
+        </div>
+        <span class="profile-arrow">↗</span>
+      </a>
+
+      <a href="https://orcid.org/0000-0003-2283-6389" target="_blank" rel="noopener noreferrer" class="profile-row">
         <span class="profile-type">ORCID</span>
         <div>
           <p class="profile-name-text">0000-0003-2283-6389</p>
@@ -941,7 +984,7 @@
         <span class="profile-arrow">↗</span>
       </a>
 
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5146234" target="_blank" class="profile-row">
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5146234" target="_blank" rel="noopener noreferrer" class="profile-row">
         <span class="profile-type">Preprint</span>
         <div>
           <p class="profile-name-text">Advancing Realistic Estimations of Behavioural Interventions</p>
@@ -950,7 +993,7 @@
         <span class="profile-arrow">↗</span>
       </a>
 
-      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4843941" target="_blank" class="profile-row">
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4843941" target="_blank" rel="noopener noreferrer" class="profile-row">
         <span class="profile-type">Preprint</span>
         <div>
           <p class="profile-name-text">Social Reference Points Shape Decisions under Uncertainty</p>
@@ -975,7 +1018,7 @@
         </p>
       </div>
       <a href="cv/academic_de.pdf"
-         class="btn-cv reveal" target="_blank">
+         class="btn-cv reveal" target="_blank" rel="noopener noreferrer">
         ↓ Lebenslauf herunterladen (PDF)
       </a>
     </div>
@@ -995,7 +1038,7 @@
         </div>
         <div class="contact-row">
           <span class="contact-label">Telefon</span>
-          <span class="contact-value">+43 660 827 0761</span>
+          <span class="contact-value"><button type="button" class="phone-reveal" data-p="NDMgNjYwIDgyNyAwNzYx">Telefonnummer anzeigen</button><noscript>Bitte JavaScript aktivieren, um die Telefonnummer zu sehen.</noscript></span>
         </div>
       </div>
       <a href="mailto:benjaminkirchler@rocketmail.com" class="btn-email">
@@ -1008,11 +1051,11 @@
     <span class="footer-name">Benjamin Kirchler</span>
     <ul class="footer-links">
       <li><a href="mailto:benjaminkirchler@rocketmail.com">E-Mail</a></li>
-      <li><a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank">Google Scholar</a></li>
-      <li><a href="https://orcid.org/0000-0003-2283-6389" target="_blank">ORCID</a></li>
-      <li><a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank">ResearchGate</a></li>
-      <li><a href="https://www.linkedin.com/in/benjamin-kirchler-036922196/" target="_blank">LinkedIn</a></li>
-      <li><a href="https://energieinstitut-linz.at/en/team/benjamin-kirchler-msc/" target="_blank">Energieinstitut</a></li>
+      <li><a href="https://scholar.google.de/citations?hl=de&user=ylPRkvQAAAAJ" target="_blank" rel="noopener noreferrer">Google Scholar</a></li>
+      <li><a href="https://orcid.org/0000-0003-2283-6389" target="_blank" rel="noopener noreferrer">ORCID</a></li>
+      <li><a href="https://www.researchgate.net/profile/Benjamin-Kirchler" target="_blank" rel="noopener noreferrer">ResearchGate</a></li>
+      <li><a href="https://www.linkedin.com/in/benjamin-kirchler-036922196/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+      <li><a href="https://energieinstitut-linz.at/en/team/benjamin-kirchler-msc/" target="_blank" rel="noopener noreferrer">Energieinstitut</a></li>
     </ul>
     <span class="footer-copy">© 2026 Benjamin Kirchler</span>
   </footer>
@@ -1041,9 +1084,20 @@
       requestAnimationFrame(tick);
     }
 
+    // Live citation count from OpenAlex (CORS-enabled, keyed on ORCID). Falls back to the static value.
+    const citesReady = fetch('https://api.openalex.org/authors/orcid:0000-0003-2283-6389?select=cited_by_count')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => { if (Number.isInteger(d.cited_by_count) && d.cited_by_count > 0) document.getElementById('stat-cites').textContent = String(d.cited_by_count); })
+      .catch(() => {});
+    const withTimeout = (p, ms) => Promise.race([p, new Promise(res => setTimeout(res, ms))]);
+
     const statObserver = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) { animateStat(e.target); statObserver.unobserve(e.target); }
+        if (e.isIntersecting) {
+          if (e.target.id === 'stat-cites') withTimeout(citesReady, 2500).then(() => animateStat(e.target));
+          else animateStat(e.target);
+          statObserver.unobserve(e.target);
+        }
       });
     }, { threshold: 0.5 });
     document.querySelectorAll('.stat-num').forEach(el => statObserver.observe(el));
@@ -1060,6 +1114,25 @@
       });
     }, { threshold: 0.06 });
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── MOBILE NAV ──
+    const navEl = document.querySelector('nav');
+    const toggle = document.querySelector('.nav-toggle');
+    function setNav(open) {
+      navEl.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    }
+    toggle.addEventListener('click', () => setNav(!navEl.classList.contains('open')));
+    document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => setNav(false)));
+
+    // ── PHONE REVEAL ──
+    document.querySelectorAll('.phone-reveal').forEach(btn => btn.addEventListener('click', () => {
+      const num = atob(btn.dataset.p);
+      const a = document.createElement('a');
+      a.href = 'tel:+' + num.replace(/\s/g, '');
+      a.textContent = '+' + num;
+      btn.replaceWith(a);
+    }));
   </script>
 </body>
 </html>
